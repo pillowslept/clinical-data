@@ -30,10 +30,8 @@ public class ProcessDataController {
 	}
 
 	@RequestMapping(value = "/startProcess", method = RequestMethod.POST)
-	public ResponseEntity<?> createUser(@RequestBody Params params) {
-		Long processId = processDataService.startProcess(params);
-		String response = "Señor " + params.getUserName() + " su solicitud ha comenzado a ser procesada, el identificador generado es " + processId;
-		return new ResponseEntity<String>(response, HttpStatus.OK);
+	public ResponseEntity<String> startProcess(@RequestBody Params params) {
+		return new ResponseEntity<String>(processDataService.startProcess(params), HttpStatus.OK);
 	}
 
 }
