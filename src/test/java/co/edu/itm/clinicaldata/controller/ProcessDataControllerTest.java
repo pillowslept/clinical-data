@@ -25,7 +25,7 @@ public class ProcessDataControllerTest {
 	ProcessDataController processDataController;
 
 	@Test
-	public void processStateTest() {
+	public void processStateTest() throws ValidateException {
 		//arrange
 		Long processId = 1L;
 		String messageToReturn = "Señor usuario, su proceso se encuentra en proceso " + processId;
@@ -40,7 +40,7 @@ public class ProcessDataControllerTest {
 	}
 
 	@Test
-	public void resultProcessTest() {
+	public void resultProcessTest() throws ValidateException {
 		//arrange
 		Long processId = 1L;
 		String messageToReturn = "Señor usuario, la solicitud terminó el proceso exitosamente " + processId;

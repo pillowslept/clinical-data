@@ -21,12 +21,12 @@ public class ProcessDataController {
 	ProcessDataService processDataService;
 
 	@RequestMapping(value = "/processState/{processId}", method = RequestMethod.GET)
-	public ResponseEntity<String> processState(@PathVariable("processId") Long processId) {
+	public ResponseEntity<String> processState(@PathVariable("processId") Long processId) throws ValidateException {
 		return new ResponseEntity<String>(processDataService.processState(processId), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/resultProcess/{processId}", method = RequestMethod.GET)
-	public ResponseEntity<String> resultProcess(@PathVariable("processId") Long processId) {
+	public ResponseEntity<String> resultProcess(@PathVariable("processId") Long processId) throws ValidateException {
 		return new ResponseEntity<String>(processDataService.resultProcess(processId), HttpStatus.OK);
 	}
 
