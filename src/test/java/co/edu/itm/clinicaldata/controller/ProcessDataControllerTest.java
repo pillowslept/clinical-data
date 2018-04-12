@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 
 import co.edu.itm.clinicaldata.dto.Params;
+import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.service.ProcessDataService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,7 +55,7 @@ public class ProcessDataControllerTest {
 	}
 
 	@Test
-	public void startProcessTest() {
+	public void startProcessTest() throws ValidateException {
 		//arrange
 		Params params = new Params();
 		params.setUserName("Juan");

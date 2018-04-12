@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.itm.clinicaldata.dto.Params;
+import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.service.ProcessDataService;
 
 @RestController
@@ -30,7 +31,7 @@ public class ProcessDataController {
 	}
 
 	@RequestMapping(value = "/startProcess", method = RequestMethod.POST)
-	public ResponseEntity<String> startProcess(@RequestBody Params params) {
+	public ResponseEntity<String> startProcess(@RequestBody Params params) throws ValidateException {
 		return new ResponseEntity<String>(processDataService.startProcess(params), HttpStatus.OK);
 	}
 
