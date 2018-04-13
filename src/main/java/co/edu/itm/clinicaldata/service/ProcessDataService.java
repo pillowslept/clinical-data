@@ -61,9 +61,9 @@ public class ProcessDataService {
         return language;
 	}
 
-    private void validateLanguagesAllowed(Params params)
-            throws ValidateException {
-	    if(!languagesAllowed.contains(params.getLanguage())){
+    private void validateLanguagesAllowed(Params params) throws ValidateException {
+        boolean validLanguage = languagesAllowed.stream().anyMatch(language -> language.equalsIgnoreCase(params.getLanguage()));
+	    if(!validLanguage){
 	        throw new ValidateException("La información diligenciada en el campo <language> no es soportada por la aplicación");
 	    }
     }
