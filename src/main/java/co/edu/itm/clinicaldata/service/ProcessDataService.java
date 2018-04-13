@@ -11,15 +11,16 @@ import co.edu.itm.clinicaldata.dto.Params;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.Languages;
 import co.edu.itm.clinicaldata.model.User;
+import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class ProcessDataService {
 
-	@Autowired
-	UserService userService;
+    private static final Logger LOGGER = Logger.getLogger(ProcessDataService.class.getName());
 
-	private static final Logger LOGGER = Logger.getLogger(ProcessDataService.class.getName());
+    @Autowired
+	UserService userService;
 
 	private final List<String> languagesAllowed = Arrays.asList(Languages.JAVA.toString(), Languages.PYTHON.toString(), Languages.R.toString());
 
@@ -38,19 +39,26 @@ public class ProcessDataService {
 	public String startProcess(Params params) throws ValidateException {
 		validateFields(params);
 		validateLanguagesAllowed(params);
-		if(params.getLanguage().equalsIgnoreCase(Languages.JAVA.toString())){
-			LOGGER.info("El lenguaje a procesar es " + Languages.JAVA);
-		}
-		if(params.getLanguage().equalsIgnoreCase(Languages.PYTHON.toString())){
-			LOGGER.info("El lenguaje a procesar es " + Languages.PYTHON);
-		}
-		if(params.getLanguage().equalsIgnoreCase(Languages.R.toString())){
-			LOGGER.info("El lenguaje a procesar es " + Languages.R);
-		}
+		Languages language = getLanguage(params.getLanguage());
+		String fileName = "prueba.txt";
+		FileUtilities.createFile(params.getFunction(), fileName, language);
 		createUser(params);
 		Long processId = 102030L;
 		LOGGER.info("Comenzando el procesamiento de la solicitud " + processId);
 		return "Señor " + params.getUserName() + " su solicitud ha comenzado a ser procesada, el identificador generado es " + processId;
+	}
+
+	private Languages getLanguage(String languageToProcess){
+	    Languages language = null;
+	    if(languageToProcess.equalsIgnoreCase(Languages.JAVA.toString())){
+            language = Languages.JAVA;
+        }else if(languageToProcess.equalsIgnoreCase(Languages.PYTHON.toString())){
+            language = Languages.PYTHON;
+        }else if(languageToProcess.equalsIgnoreCase(Languages.R.toString())){
+            language = Languages.R;
+        }
+	    LOGGER.info("El lenguaje a procesar es " + language);
+        return language;
 	}
 
     private void validateLanguagesAllowed(Params params)
