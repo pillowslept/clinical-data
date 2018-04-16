@@ -27,9 +27,9 @@ public class ProcessDataControllerTest {
 	@Test
 	public void processStateTest() throws ValidateException {
 		//arrange
-		Long processId = 1L;
+		String processId = "1";
 		String messageToReturn = "Señor usuario, su proceso se encuentra en proceso " + processId;
-		Mockito.when(processDataService.processState(Mockito.anyLong())).thenReturn(messageToReturn);
+		Mockito.when(processDataService.processState(Mockito.anyString())).thenReturn(messageToReturn);
 
 		//act
 		ResponseEntity<String> message = processDataController.processState(processId);
@@ -42,12 +42,12 @@ public class ProcessDataControllerTest {
 	@Test
 	public void resultProcessTest() throws ValidateException {
 		//arrange
-		Long processId = 1L;
+		String processId = "1";
 		String messageToReturn = "Señor usuario, la solicitud terminó el proceso exitosamente " + processId;
-		Mockito.when(processDataService.resultProcess(Mockito.anyLong())).thenReturn(messageToReturn);
+		Mockito.when(processDataService.processResult(Mockito.anyString())).thenReturn(messageToReturn);
 
 		//act
-		ResponseEntity<String> message = processDataController.resultProcess(processId);
+		ResponseEntity<String> message = processDataController.processResult(processId);
 
 		//assert
 		Assert.assertEquals(message.getStatusCode(), OK);

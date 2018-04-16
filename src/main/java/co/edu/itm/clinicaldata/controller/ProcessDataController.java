@@ -17,22 +17,28 @@ import co.edu.itm.clinicaldata.service.ProcessDataService;
 @RequestMapping("/api")
 public class ProcessDataController {
 
-	@Autowired
-	ProcessDataService processDataService;
+    @Autowired
+    ProcessDataService processDataService;
 
-	@RequestMapping(value = "/processState/{processId}", method = RequestMethod.GET)
-	public ResponseEntity<String> processState(@PathVariable("processId") Long processId) throws ValidateException {
-		return new ResponseEntity<String>(processDataService.processState(processId), HttpStatus.OK);
-	}
+    @RequestMapping(value = "/processState/{processIdentifier}", method = RequestMethod.GET)
+    public ResponseEntity<String> processState(
+            @PathVariable("processIdentifier") String processIdentifier) throws ValidateException {
+        return new ResponseEntity<String>(
+                processDataService.processState(processIdentifier), HttpStatus.OK);
+    }
 
-	@RequestMapping(value = "/resultProcess/{processId}", method = RequestMethod.GET)
-	public ResponseEntity<String> resultProcess(@PathVariable("processId") Long processId) throws ValidateException {
-		return new ResponseEntity<String>(processDataService.resultProcess(processId), HttpStatus.OK);
-	}
+    @RequestMapping(value = "/processResult/{processIdentifier}", method = RequestMethod.GET)
+    public ResponseEntity<String> processResult(
+            @PathVariable("processIdentifier") String processIdentifier) throws ValidateException {
+        return new ResponseEntity<String>(
+                processDataService.processResult(processIdentifier), HttpStatus.OK);
+    }
 
-	@RequestMapping(value = "/startProcess", method = RequestMethod.POST)
-	public ResponseEntity<String> startProcess(@RequestBody Params params) throws ValidateException {
-		return new ResponseEntity<String>(processDataService.startProcess(params), HttpStatus.OK);
-	}
+    @RequestMapping(value = "/startProcess", method = RequestMethod.POST)
+    public ResponseEntity<String> startProcess(@RequestBody Params params)
+            throws ValidateException {
+        return new ResponseEntity<String>(
+                processDataService.startProcess(params), HttpStatus.OK);
+    }
 
 }
