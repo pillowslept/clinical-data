@@ -45,10 +45,17 @@ public class ProcessDataService {
         validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
         validateFinishedProcess(processingRequest);
+        String fullPath = getProcessFullPath(processingRequest);
+        String readedContent = FileUtilities.readFile(fullPath);
+        LOGGER.info("Contenido del archivo leído " + readedContent);
         return String
                 .format("La solicitud <%s> ha terminado su procesamiento, su estado actual es %s",
                         processingRequest.getIdentifier(),
                         processingRequest.getState());
+    }
+
+    private String getProcessFullPath(ProcessingRequest processingRequest) {
+        return processingRequest.getBasePath() + processingRequest.getFileName();
     }
 
     private void validateFinishedProcess(ProcessingRequest processingRequest) throws ValidateException {
@@ -71,7 +78,7 @@ public class ProcessDataService {
         validateLanguagesAllowed(params);
         Language language = getLanguage(params.getLanguage());
         ProcessingRequest processingRequest = createProcessingRequest(language, params);
-        String fullPath = processingRequest.getBasePath() + processingRequest.getFileName();
+        String fullPath = getProcessFullPath(processingRequest);
         FileUtilities.createFile(processingRequest.getFunction(), fullPath);
         createUser(params);
         LOGGER.info("Comenzando el procesamiento de la solicitud " + processingRequest.getIdentifier());

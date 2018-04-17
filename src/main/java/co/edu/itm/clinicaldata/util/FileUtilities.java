@@ -1,6 +1,8 @@
 package co.edu.itm.clinicaldata.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,7 +24,7 @@ public class FileUtilities {
         try {
             Files.write(Paths.get(path), functionToProcess.getBytes());
         } catch (IOException ex) {
-            LOGGER.error("Ocurrió un error generando el archivo con la función", ex);
+            LOGGER.error("Ocurrió un error generando el archivo con la función a procesar", ex);
         }
     }
 
@@ -44,7 +46,21 @@ public class FileUtilities {
         return String.format("%s.%s", randomIdentifier, ext);
     }
 
+    public static String readFile(String fileName){
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String sCurrentLine;
+            while ((sCurrentLine = br.readLine()) != null) {
+                sb.append(sCurrentLine);
+            }
+        } catch (IOException ex) {
+            LOGGER.error(String.format("El archivo de la ruta <%s> no pudo ser leído. ", fileName), ex);
+        }
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
+        System.out.println(readFile("C:\\Users\\ceiba\\clinicaldata\\java\\fc6082cb-a54e-42ea-ac35-e73c15a48550.java"));
         // Aquí las instrucciones del método
         System.getProperties().list(System.out);
         createFile("Esta es la función que quiero ejecutar y ensayar", buildBasePath(Language.JAVA.getName()) + generateFileName(randomIdentifier(), "java"));
