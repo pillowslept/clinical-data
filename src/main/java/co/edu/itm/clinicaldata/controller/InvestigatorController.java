@@ -35,7 +35,7 @@ public class InvestigatorController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
-    public ResponseEntity<?> create(@RequestBody Params params)
+    public ResponseEntity<Investigator> create(@RequestBody Params params)
             throws ValidateException {
         return new ResponseEntity<Investigator>(
                 investigatorService.create(params), HttpStatus.OK);
