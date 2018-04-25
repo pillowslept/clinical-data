@@ -20,10 +20,17 @@ public class InvestigatorController {
     @Autowired
     InvestigatorService investigatorService;
 
-    @RequestMapping(value = "/inactive", method = RequestMethod.POST)
-    public ResponseEntity<String> inactive(@RequestBody Params params)
+    @RequestMapping(value = "/inactivate", method = RequestMethod.POST)
+    public ResponseEntity<String> inactivate(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<String>(investigatorService.inactive(params),
+        return new ResponseEntity<String>(
+                investigatorService.inactivate(params), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/activate", method = RequestMethod.POST)
+    public ResponseEntity<String> activate(@RequestBody Params params)
+            throws ValidateException {
+        return new ResponseEntity<String>(investigatorService.activate(params),
                 HttpStatus.OK);
     }
 

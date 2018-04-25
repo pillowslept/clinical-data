@@ -35,17 +35,36 @@ public class InvestigatorService {
         return investigator;
     }
 
-    public String inactive(Params params) throws ValidateException {
-        if(Validations.field(params.getUserId())){
-            throw new ValidateException("El campo <userId> no es válido");
-        }
-        Investigator investigator = findById(params.getUserId());
-        if(investigator == null){
-            throw new ValidateException(String.format("El investigador con identificador <%d> no existe en la base de datos", params.getUserId()));
-        }
+    public String inactivate(Params params) throws ValidateException {
+        validateFields(params);
+        Investigator investigator = validateAndfind(params);
         investigator.setState("I");
         investigatorRepository.save(investigator);
         return String.format("El investigador con identificador <%d> fue inactivado con éxito", params.getUserId());
+    }
+
+    public String activate(Params params) throws ValidateException {
+        validateFields(params);
+        Investigator investigator = validateAndfind(params);
+        investigator.setState("A");
+        investigatorRepository.save(investigator);
+        return String.format("El investigador con identificador <%d> fue activado con éxito",
+                params.getUserId());
+    }
+
+    private Investigator validateAndfind(Params params) throws ValidateException {
+        Investigator investigator = findById(params.getUserId());
+        if(investigator == null){
+            throw new ValidateException(String.format("El investigador con identificador <%d> no existe en la base de datos",
+                    params.getUserId()));
+        }
+        return investigator;
+    }
+
+    private void validateFields(Params params) throws ValidateException {
+        if(Validations.field(params.getUserId())){
+            throw new ValidateException("El campo <userId> no es válido");
+        }
     }
 
     public void update(Investigator investigator) {
