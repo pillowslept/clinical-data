@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 
-import co.edu.itm.clinicaldata.model.Language;
+import co.edu.itm.clinicaldata.enums.Language;
 
 public class FileUtilities {
 
