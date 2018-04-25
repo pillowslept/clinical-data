@@ -1,4 +1,4 @@
-package co.edu.itm.clinicaldata.model;
+package co.edu.itm.clinicaldata.enums;
 
 public enum Language {
 	
