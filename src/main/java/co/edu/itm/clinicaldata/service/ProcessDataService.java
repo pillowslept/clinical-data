@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.edu.itm.clinicaldata.dto.Params;
+import co.edu.itm.clinicaldata.enums.Language;
+import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
-import co.edu.itm.clinicaldata.model.Language;
-import co.edu.itm.clinicaldata.model.ProcessState;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.model.User;
 import co.edu.itm.clinicaldata.util.FileUtilities;
