@@ -14,27 +14,29 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.service.ProcessDataService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/processData")
 public class ProcessDataController {
 
     @Autowired
     ProcessDataService processDataService;
 
-    @RequestMapping(value = "/processState/{processIdentifier}", method = RequestMethod.GET)
+    @RequestMapping(value = "/state/{identifier}", method = RequestMethod.GET)
     public ResponseEntity<String> processState(
-            @PathVariable("processIdentifier") String processIdentifier) throws ValidateException {
+            @PathVariable("identifier") String identifier)
+            throws ValidateException {
         return new ResponseEntity<String>(
-                processDataService.processState(processIdentifier), HttpStatus.OK);
+                processDataService.processState(identifier), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/processResult/{processIdentifier}", method = RequestMethod.GET)
+    @RequestMapping(value = "/result/{identifier}", method = RequestMethod.GET)
     public ResponseEntity<String> processResult(
-            @PathVariable("processIdentifier") String processIdentifier) throws ValidateException {
+            @PathVariable("identifier") String identifier)
+            throws ValidateException {
         return new ResponseEntity<String>(
-                processDataService.processResult(processIdentifier), HttpStatus.OK);
+                processDataService.processResult(identifier), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/startProcess", method = RequestMethod.POST)
+    @RequestMapping(value = "/start", method = RequestMethod.POST)
     public ResponseEntity<String> startProcess(@RequestBody Params params)
             throws ValidateException {
         return new ResponseEntity<String>(
