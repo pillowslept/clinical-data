@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -22,9 +23,11 @@ public class ProcessingRequest implements Serializable {
     private Long id;
 
     @NotEmpty
+    @Size(max = 40)
     @Column(name = "IDENTIFIER", nullable = false)
     private String identifier;
 
+    @Size(max = 10)
     @Column(name = "LANGUAGE", nullable = false)
     private String language;
 
@@ -37,6 +40,7 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "FILE_NAME", nullable = false)
     private String fileName;
 
+    @Size(max = 10)
     @Column(name = "STATE", nullable = false)
     private String state;
 
