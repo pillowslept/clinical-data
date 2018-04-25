@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.itm.clinicaldata.dto.Params;
+import co.edu.itm.clinicaldata.enums.InvestigatorState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.repository.InvestigatorRepository;
@@ -30,7 +31,7 @@ public class InvestigatorService {
     public Investigator create(Params params) {
         Investigator investigator = new Investigator();
         investigator.setName(params.getUserName());
-        investigator.setState("A");
+        investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return investigator;
     }
@@ -38,7 +39,7 @@ public class InvestigatorService {
     public String inactivate(Params params) throws ValidateException {
         validateFields(params);
         Investigator investigator = validateAndfind(params);
-        investigator.setState("I");
+        investigator.setState(InvestigatorState.INACTIVE.getState());
         investigatorRepository.save(investigator);
         return String.format("El investigador con identificador <%d> fue inactivado con éxito", params.getUserId());
     }
@@ -46,7 +47,7 @@ public class InvestigatorService {
     public String activate(Params params) throws ValidateException {
         validateFields(params);
         Investigator investigator = validateAndfind(params);
-        investigator.setState("A");
+        investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return String.format("El investigador con identificador <%d> fue activado con éxito",
                 params.getUserId());
