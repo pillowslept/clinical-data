@@ -18,7 +18,7 @@ public class Commands {
         if(SystemUtils.IS_OS_WINDOWS_10){
             command = "ping -n 3 " + domainName;
         } else if(SystemUtils.IS_OS_LINUX){
-            command = "ping -c 3 " + domainName;
+            command = "qsub " + pathFile;
         }
 
         String output = executeCommand(command);

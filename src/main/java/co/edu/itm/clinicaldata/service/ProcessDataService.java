@@ -12,7 +12,6 @@ import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
-import co.edu.itm.clinicaldata.model.User;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
@@ -23,7 +22,7 @@ public class ProcessDataService {
             .getLogger(ProcessDataService.class.getName());
 
     @Autowired
-    UserService userService;
+    InvestigatorService investigatorService;
 
     @Autowired
     ProcessingRequestService processingRequestService;
@@ -80,7 +79,6 @@ public class ProcessDataService {
         ProcessingRequest processingRequest = createProcessingRequest(language, params);
         String fullPath = getProcessFullPath(processingRequest);
         FileUtilities.createFile(processingRequest.getFunction(), fullPath);
-        createUser(params);
         LOGGER.info("Comenzando el procesamiento de la solicitud " + processingRequest.getIdentifier());
         return "Señor "
                 + params.getUserName()
@@ -142,11 +140,4 @@ public class ProcessDataService {
         }
     }
 
-    private void createUser(Params params) {
-        User user = new User();
-        user.setName(params.getUserName());
-        user.setSalary(1000);
-        user.setAge(25);
-        userService.saveUser(user);
-    }
 }
