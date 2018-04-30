@@ -2,18 +2,9 @@ package co.edu.itm.clinicaldata.dto;
 
 public class Params {
 
-    private String language;
-    private String function;
+    private String identifier;
     private String userName;
     private Long userId;
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
 
     public String getUserName() {
         return userName;
@@ -23,12 +14,12 @@ public class Params {
         this.userName = userName;
     }
 
-    public String getFunction() {
-        return function;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setFunction(String function) {
-        this.function = function;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public Long getUserId() {

@@ -1,14 +1,10 @@
 package co.edu.itm.clinicaldata.service;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.edu.itm.clinicaldata.dto.Params;
-import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
@@ -27,10 +23,12 @@ public class ProcessDataService {
     @Autowired
     ProcessingRequestService processingRequestService;
 
-    private final List<String> languagesAllowed = Arrays.asList(
-            Language.JAVA.toString(), Language.PYTHON.toString(),
-            Language.R.toString());
-
+    /**
+     * Se encarga de obtener el estado de una solicitud por medio de su identificador
+     * @param processIdentifier
+     * @return
+     * @throws ValidateException
+     */
     public String processState(String processIdentifier) throws ValidateException {
         validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
@@ -40,6 +38,12 @@ public class ProcessDataService {
                         processingRequest.getState());
     }
 
+    /**
+     * Se encarga de procesar el resultado para las solicitudes que hayan finalizado su procesamiento
+     * @param processIdentifier
+     * @return
+     * @throws ValidateException
+     */
     public String processResult(String processIdentifier) throws ValidateException {
         validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
@@ -51,6 +55,34 @@ public class ProcessDataService {
                 .format("La solicitud <%s> ha terminado su procesamiento, su estado actual es %s",
                         processingRequest.getIdentifier(),
                         processingRequest.getState());
+    }
+
+    /**
+     * Se encarga de comenzar el proceso de la solicitud previamente creada, envía al cluster el archivo a procesar
+     * @param params
+     * @return
+     * @throws ValidateException
+     */
+    public String startProcess(Params params) throws ValidateException {
+        validateFields(params);
+        ProcessingRequest processingRequest = findProccessByIdentifier(params.getIdentifier());
+        validateCreatedProcess(processingRequest);
+        LOGGER.info("Comenzando el procesamiento de la solicitud " + processingRequest.getIdentifier());
+        LOGGER.info("Bytes de la solicitud " + processingRequest.getBytes());
+        return "Señor "
+                + params.getUserName()
+                + " su solicitud ha comenzado a ser procesada por el cluster, el identificador generado es: "
+                + processingRequest.getIdentifier();
+    }
+
+    private void validateCreatedProcess(ProcessingRequest processingRequest) throws ValidateException {
+        if(!processingRequest.getState().equals(ProcessState.CREATED.getState())){
+            throw new ValidateException(
+                    String.format(
+                            "La solicitud <%s> no se encuentra en un estado válido para ser procesada. Estado actual <%s>",
+                            processingRequest.getIdentifier(),
+                            ProcessState.CREATED.getState()));
+        }
     }
 
     private String getProcessFullPath(ProcessingRequest processingRequest) {
@@ -67,76 +99,22 @@ public class ProcessDataService {
     private ProcessingRequest findProccessByIdentifier(String processIdentifier) throws ValidateException {
         ProcessingRequest processingRequest = processingRequestService.findByIdentifier(processIdentifier);
         if(processingRequest == null){
-            throw new ValidateException(String.format("La solicitud <%s> no existe en la base de datos", processIdentifier));
+            throw new ValidateException(String.format("La solicitud con identificador <%s> no existe en la base de datos", processIdentifier));
         }
         return processingRequest;
-    }
-
-    public String startProcess(Params params) throws ValidateException {
-        validateFields(params);
-        validateLanguagesAllowed(params);
-        Language language = getLanguage(params.getLanguage());
-        ProcessingRequest processingRequest = createProcessingRequest(language, params);
-        String fullPath = getProcessFullPath(processingRequest);
-        FileUtilities.createFile(processingRequest.getFunction(), fullPath);
-        LOGGER.info("Comenzando el procesamiento de la solicitud " + processingRequest.getIdentifier());
-        return "Señor "
-                + params.getUserName()
-                + " su solicitud ha comenzado a ser procesada, el identificador generado es: "
-                + processingRequest.getIdentifier();
-    }
-
-    private ProcessingRequest createProcessingRequest(Language language, Params params){
-        ProcessingRequest processingRequest = new ProcessingRequest();
-        String identifier = FileUtilities.randomIdentifier();
-        processingRequest.setIdentifier(identifier);
-        processingRequest.setFileName(FileUtilities.generateFileName(identifier, language.getFileExtension()));
-        processingRequest.setBasePath(FileUtilities.buildBasePath(language.getName()));
-        processingRequest.setLanguage(language.getName());
-        processingRequest.setFunction(params.getFunction());
-        processingRequest.setState(ProcessState.CREATED.getState());
-        processingRequestService.save(processingRequest);
-        return processingRequest;
-    }
-
-    private Language getLanguage(String languageToProcess) {
-        Language language = null;
-        if (languageToProcess.equalsIgnoreCase(Language.JAVA.getName())) {
-            language = Language.JAVA;
-        } else if (languageToProcess.equalsIgnoreCase(Language.PYTHON.getName())) {
-            language = Language.PYTHON;
-        } else if (languageToProcess.equalsIgnoreCase(Language.R.getName())) {
-            language = Language.R;
-        }
-        LOGGER.info("El lenguaje a procesar es " + language);
-        return language;
-    }
-
-    private void validateLanguagesAllowed(Params params)
-            throws ValidateException {
-        boolean validLanguage = languagesAllowed.stream().anyMatch(
-                language -> language.equalsIgnoreCase(params.getLanguage()));
-        if (!validLanguage) {
-            throw new ValidateException(
-                    "La información diligenciada en el campo <language> no es soportada por la aplicación");
-        }
     }
 
     private void validateFields(Params params) throws ValidateException {
-        if (Validations.field(params.getLanguage())) {
+        if (Validations.field(params.getIdentifier())) {
             throw new ValidateException(
-                    "El campo <language> debe ser diligenciado");
-        }
-        if (Validations.field(params.getFunction())) {
-            throw new ValidateException(
-                    "El campo <function> debe ser diligenciado");
+                    "El campo <identifier> debe ser diligenciado");
         }
     }
 
     private void validateProcessIdentifier(String processId) throws ValidateException {
         if (Validations.field(processId)) {
             throw new ValidateException(
-                    "El <identificador> del proceso debe ser válido");
+                    "El <identifier> del proceso debe ser válido");
         }
     }
 

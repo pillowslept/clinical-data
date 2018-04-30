@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -31,8 +32,9 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "LANGUAGE", nullable = false)
     private String language;
 
-    @Column(name = "FUNCTION", nullable = false)
-    private String function;
+    @Column(name = "BYTES", nullable = false)
+    @Lob
+    private byte[] bytes;
 
     @Column(name = "BASE_PATH", nullable = false)
     private String basePath;
@@ -54,14 +56,6 @@ public class ProcessingRequest implements Serializable {
 
     public void setLanguage(String language) {
         this.language = language;
-    }
-
-    public String getFunction() {
-        return function;
-    }
-
-    public void setFunction(String function) {
-        this.function = function;
     }
 
     public String getBasePath() {
@@ -98,6 +92,14 @@ public class ProcessingRequest implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
 
 }

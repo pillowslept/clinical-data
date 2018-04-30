@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.repository.ProcessingRequestRepository;
+import co.edu.itm.clinicaldata.util.RandomUtilities;
 
 @Service
 @Transactional
@@ -42,6 +44,19 @@ public class ProcessingRequestService {
 
     public List<ProcessingRequest> findAll() {
         return processingRequestRepository.findAll();
+    }
+
+    public ProcessingRequest createProcessingRequest(String language, byte[] bytes, String fileName, String basePath){
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        String identifier = RandomUtilities.randomIdentifier();
+        processingRequest.setIdentifier(identifier);
+        processingRequest.setFileName(fileName);
+        processingRequest.setBasePath(basePath);
+        processingRequest.setLanguage(language);
+        processingRequest.setBytes(bytes);
+        processingRequest.setState(ProcessState.CREATED.getState());
+        save(processingRequest);
+        return processingRequest;
     }
 
 }
