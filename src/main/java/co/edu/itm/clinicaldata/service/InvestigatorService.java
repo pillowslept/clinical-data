@@ -30,7 +30,7 @@ public class InvestigatorService {
 
     public Investigator create(Params params) {
         Investigator investigator = new Investigator();
-        investigator.setName(params.getUserName());
+        investigator.setName(params.getInvestigatorName());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return investigator;
@@ -38,33 +38,33 @@ public class InvestigatorService {
 
     public String inactivate(Params params) throws ValidateException {
         validateFields(params);
-        Investigator investigator = validateAndfind(params);
+        Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.INACTIVE.getState());
         investigatorRepository.save(investigator);
-        return String.format("El investigador con identificador <%d> fue inactivado con éxito", params.getUserId());
+        return String.format("El investigador con identificador <%d> fue inactivado con éxito", params.getInvestigatorId());
     }
 
     public String activate(Params params) throws ValidateException {
         validateFields(params);
-        Investigator investigator = validateAndfind(params);
+        Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return String.format("El investigador con identificador <%d> fue activado con éxito",
-                params.getUserId());
+                params.getInvestigatorId());
     }
 
-    private Investigator validateAndfind(Params params) throws ValidateException {
-        Investigator investigator = findById(params.getUserId());
+    public Investigator validateAndfind(Long investigatorId) throws ValidateException {
+        Investigator investigator = findById(investigatorId);
         if(investigator == null){
             throw new ValidateException(String.format("El investigador con identificador <%d> no existe en la base de datos",
-                    params.getUserId()));
+                    investigatorId));
         }
         return investigator;
     }
 
     private void validateFields(Params params) throws ValidateException {
-        if(Validations.field(params.getUserId())){
-            throw new ValidateException("El campo <userId> no es válido");
+        if(Validations.field(params.getInvestigatorId())){
+            throw new ValidateException("El campo <investigatorId> no es válido");
         }
     }
 
