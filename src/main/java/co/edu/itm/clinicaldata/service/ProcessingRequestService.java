@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.itm.clinicaldata.enums.ProcessState;
+import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.repository.ProcessingRequestRepository;
 import co.edu.itm.clinicaldata.util.DateUtilities;
@@ -46,6 +47,14 @@ public class ProcessingRequestService {
         return processingRequestRepository.findAll();
     }
 
+    public ProcessingRequest validateAndFindByIdentifier(String processIdentifier) throws ValidateException {
+        ProcessingRequest processingRequest = findByIdentifier(processIdentifier);
+        if(processingRequest == null){
+            throw new ValidateException(String.format("La solicitud con identificador <%s> no existe en la base de datos", processIdentifier));
+        }
+        return processingRequest;
+    }
+
     public ProcessingRequest create(String identifier,
             String language, byte[] bytes, String fileName, String basePath) {
         ProcessingRequest processingRequest = new ProcessingRequest();
@@ -60,7 +69,7 @@ public class ProcessingRequestService {
         return processingRequest;
     }
 
-    public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState) {
+    public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState, Long investigatorId) {
         processingRequest.setLastUpdate(DateUtilities.getTimestamp());
         processingRequest.setState(ProcessState.PROCESSING.getState());
         save(processingRequest);

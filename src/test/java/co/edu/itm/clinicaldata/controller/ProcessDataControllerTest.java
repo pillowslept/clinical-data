@@ -58,7 +58,7 @@ public class ProcessDataControllerTest {
 	public void startProcessTest() throws ValidateException {
 		//arrange
 		Params params = new Params();
-		params.setUserName("Juan");
+		params.setInvestigatorName("Juan");
 		String messageToReturn = "Señor usuario, la solicitud terminó el proceso exitosamente ";
 		Mockito.when(processDataService.startProcess(Mockito.any(Params.class))).thenReturn(messageToReturn);
 

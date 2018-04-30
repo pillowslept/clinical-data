@@ -29,8 +29,8 @@ public class InvestigatorControllerTest {
     public void inactivateTest() throws ValidateException {
         // arrange
         Params params = new Params();
-        params.setUserId(1L);
-        String messageToReturn = "Cuenta inactivada " + params.getUserId();
+        params.setInvestigatorId(1L);
+        String messageToReturn = "Cuenta inactivada " + params.getInvestigatorId();
         Mockito.when(investigatorService.inactivate(Mockito.any(Params.class)))
                 .thenReturn(messageToReturn);
 
@@ -47,8 +47,8 @@ public class InvestigatorControllerTest {
     public void activateTest() throws ValidateException {
         // arrange
         Params params = new Params();
-        params.setUserId(1L);
-        String messageToReturn = "Cuenta activada " + params.getUserId();
+        params.setInvestigatorId(1L);
+        String messageToReturn = "Cuenta activada " + params.getInvestigatorId();
         Mockito.when(investigatorService.activate(Mockito.any(Params.class)))
                 .thenReturn(messageToReturn);
 
@@ -65,7 +65,7 @@ public class InvestigatorControllerTest {
     public void createTest() throws ValidateException {
         // arrange
         Params params = new Params();
-        params.setUserName("Juan");
+        params.setInvestigatorName("Juan");
         Investigator investigator = new Investigator();
         Mockito.when(investigatorService.create(Mockito.any(Params.class)))
                 .thenReturn(investigator);

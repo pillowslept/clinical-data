@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import co.edu.itm.clinicaldata.dto.Params;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
+import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.DateUtilities;
 import co.edu.itm.clinicaldata.util.FileUtilities;
@@ -32,7 +33,8 @@ public class ProcessDataService {
      */
     public String processState(String processIdentifier) throws ValidateException {
         validateProcessIdentifier(processIdentifier);
-        ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
+        ProcessingRequest processingRequest = processingRequestService
+                .validateAndFindByIdentifier(processIdentifier);
         return String
                 .format("La solicitud <%s> con fecha de creación <%s> se encuentra en estado %s",
                         processingRequest.getIdentifier(),
@@ -48,7 +50,8 @@ public class ProcessDataService {
      */
     public String processResult(String processIdentifier) throws ValidateException {
         validateProcessIdentifier(processIdentifier);
-        ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
+        ProcessingRequest processingRequest = processingRequestService
+                .validateAndFindByIdentifier(processIdentifier);
         validateFinishedProcess(processingRequest);
         String fullPath = getProcessFullPath(processingRequest);
         String readedContent = FileUtilities.readFile(fullPath);
@@ -67,11 +70,13 @@ public class ProcessDataService {
      */
     public String startProcess(Params params) throws ValidateException {
         validateFields(params);
-        ProcessingRequest processingRequest = findProccessByIdentifier(params.getIdentifier());
+        ProcessingRequest processingRequest = processingRequestService
+                .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
-        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
+        Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
+        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING, investigator.getId());
         return "Señor "
-                + params.getUserName()
+                + investigator.getName()
                 + " su solicitud ha comenzado a ser procesada por el cluster, el identificador generado es: "
                 + processingRequest.getIdentifier();
     }
@@ -97,18 +102,14 @@ public class ProcessDataService {
         }
     }
 
-    private ProcessingRequest findProccessByIdentifier(String processIdentifier) throws ValidateException {
-        ProcessingRequest processingRequest = processingRequestService.findByIdentifier(processIdentifier);
-        if(processingRequest == null){
-            throw new ValidateException(String.format("La solicitud con identificador <%s> no existe en la base de datos", processIdentifier));
-        }
-        return processingRequest;
-    }
-
     private void validateFields(Params params) throws ValidateException {
         if (Validations.field(params.getIdentifier())) {
             throw new ValidateException(
                     "El campo <identifier> debe ser diligenciado");
+        }
+        if (Validations.field(params.getInvestigatorId())) {
+            throw new ValidateException(
+                    "El campo <investigatorId> debe ser diligenciado");
         }
     }
 
