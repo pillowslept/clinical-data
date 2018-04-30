@@ -3,16 +3,8 @@ package co.edu.itm.clinicaldata.dto;
 public class Params {
 
     private String identifier;
-    private String userName;
-    private Long userId;
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+    private Long investigatorId;
+    private String investigatorName;
 
     public String getIdentifier() {
         return identifier;
@@ -22,11 +14,19 @@ public class Params {
         this.identifier = identifier;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getInvestigatorId() {
+        return investigatorId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setInvestigatorId(Long investigatorId) {
+        this.investigatorId = investigatorId;
+    }
+
+    public String getInvestigatorName() {
+        return investigatorName;
+    }
+
+    public void setInvestigatorName(String investigatorName) {
+        this.investigatorName = investigatorName;
     }
 }
