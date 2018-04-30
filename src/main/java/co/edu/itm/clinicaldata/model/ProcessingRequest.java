@@ -59,7 +59,7 @@ public class ProcessingRequest implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INVESTIGATOR_ID")
     Investigator investigator;
-    
+
     public Long getId() {
         return id;
     }

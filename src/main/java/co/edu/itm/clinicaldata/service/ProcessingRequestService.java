@@ -36,14 +36,6 @@ public class ProcessingRequestService {
         save(processingRequest);
     }
 
-    public void deleteById(Long id) {
-        processingRequestRepository.delete(id);
-    }
-
-    public void deleteAll() {
-        processingRequestRepository.deleteAll();
-    }
-
     public List<ProcessingRequest> findAll() {
         return processingRequestRepository.findAll();
     }
@@ -74,7 +66,7 @@ public class ProcessingRequestService {
         processingRequest.setLastUpdate(DateUtilities.getTimestamp());
         processingRequest.setState(ProcessState.PROCESSING.getState());
         processingRequest.setInvestigator(investigator);
-        save(processingRequest);
+        update(processingRequest);
         return processingRequest;
     }
 }

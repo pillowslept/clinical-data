@@ -53,7 +53,7 @@ public class FileService {
                         fileName, basePath);
 
         return String
-                .format("El archivo ha sido almacenado con éxito, identificador generado: <%s>.",
+                .format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
                         processingRequest.getIdentifier());
     }
 

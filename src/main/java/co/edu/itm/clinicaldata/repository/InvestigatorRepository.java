@@ -8,6 +8,4 @@ import co.edu.itm.clinicaldata.model.Investigator;
 @Repository
 public interface InvestigatorRepository extends JpaRepository<Investigator, Long> {
 
-    Investigator findByName(String name);
-
 }

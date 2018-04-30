@@ -24,10 +24,6 @@ public class InvestigatorService {
         return investigatorRepository.findOne(id);
     }
 
-    public Investigator findByName(String name) {
-        return investigatorRepository.findByName(name);
-    }
-
     public Investigator create(Params params) throws ValidateException {
         validateCreate(params);
         Investigator investigator = new Investigator();
@@ -47,17 +43,18 @@ public class InvestigatorService {
         validateFields(params);
         Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.INACTIVE.getState());
-        investigatorRepository.save(investigator);
-        return String.format("El investigador con identificador <%d> fue inactivado con éxito", params.getInvestigatorId());
+        update(investigator);
+        return String.format("El investigador con identificador <%d> fue inactivado con éxito",
+                        params.getInvestigatorId());
     }
 
     public String activate(Params params) throws ValidateException {
         validateFields(params);
         Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.ACTIVE.getState());
-        investigatorRepository.save(investigator);
+        update(investigator);
         return String.format("El investigador con identificador <%d> fue activado con éxito",
-                params.getInvestigatorId());
+                        params.getInvestigatorId());
     }
 
     public Investigator validateAndfind(Long investigatorId) throws ValidateException {
@@ -79,20 +76,8 @@ public class InvestigatorService {
         investigatorRepository.save(investigator);
     }
 
-    public void deleteUserById(Long id) {
-        investigatorRepository.delete(id);
-    }
-
-    public void deleteAllUsers() {
-        investigatorRepository.deleteAll();
-    }
-
     public List<Investigator> findAll() {
         return investigatorRepository.findAll();
-    }
-
-    public boolean exist(Investigator investigator) {
-        return findByName(investigator.getName()) != null;
     }
 
 }
