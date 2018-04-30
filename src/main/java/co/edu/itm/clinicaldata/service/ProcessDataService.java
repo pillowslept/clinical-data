@@ -8,6 +8,7 @@ import co.edu.itm.clinicaldata.dto.Params;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
+import co.edu.itm.clinicaldata.util.DateUtilities;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
@@ -33,8 +34,9 @@ public class ProcessDataService {
         validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findProccessByIdentifier(processIdentifier);
         return String
-                .format("La solicitud <%s> se encuentra en estado %s",
+                .format("La solicitud <%s> con fecha de creación <%s> se encuentra en estado %s",
                         processingRequest.getIdentifier(),
+                        DateUtilities.timestampToString(processingRequest.getCreationDate()),
                         processingRequest.getState());
     }
 
@@ -81,7 +83,7 @@ public class ProcessDataService {
                     String.format(
                             "La solicitud <%s> no se encuentra en un estado válido para ser procesada. Estado actual <%s>",
                             processingRequest.getIdentifier(),
-                            ProcessState.CREATED.getState()));
+                            processingRequest.getState()));
         }
     }
 

@@ -1,6 +1,7 @@
 package co.edu.itm.clinicaldata.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,12 @@ public class ProcessingRequest implements Serializable {
     @Size(max = 40)
     @Column(name = "IDENTIFIER", nullable = false)
     private String identifier;
+
+    @Column(name = "CREATION_DATE", nullable = false)
+    private Timestamp creationDate;
+
+    @Column(name = "LAST_UPDATE", nullable = true)
+    private Timestamp lastUpdate;
 
     @Size(max = 10)
     @Column(name = "LANGUAGE", nullable = false)
@@ -100,6 +107,22 @@ public class ProcessingRequest implements Serializable {
 
     public void setBytes(byte[] bytes) {
         this.bytes = bytes;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Timestamp getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Timestamp lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
 }
