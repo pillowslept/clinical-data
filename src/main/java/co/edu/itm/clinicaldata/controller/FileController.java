@@ -14,16 +14,18 @@ import co.edu.itm.clinicaldata.service.FileService;
 
 @Controller
 @RequestMapping("/api/file")
-public class UploadFileController {
+public class FileController {
 
     @Autowired
     FileService fileService;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity<String> upload(
-            @RequestParam("file") MultipartFile file) throws ValidateException {
-        return new ResponseEntity<String>(fileService.upload(file),
-                HttpStatus.OK);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("investigatorId") Long investigatorId)
+            throws ValidateException {
+        return new ResponseEntity<String>(fileService.upload(file,
+                investigatorId), HttpStatus.OK);
     }
 
 }

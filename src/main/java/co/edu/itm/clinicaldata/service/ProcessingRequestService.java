@@ -49,7 +49,7 @@ public class ProcessingRequestService {
     }
 
     public ProcessingRequest create(String identifier,
-            String language, byte[] bytes, String fileName, String basePath) {
+            String language, byte[] bytes, String fileName, String basePath, Investigator investigator) {
         ProcessingRequest processingRequest = new ProcessingRequest();
         processingRequest.setIdentifier(identifier);
         processingRequest.setCreationDate(DateUtilities.getTimestamp());
@@ -58,14 +58,14 @@ public class ProcessingRequestService {
         processingRequest.setLanguage(language);
         processingRequest.setBytes(bytes);
         processingRequest.setState(ProcessState.CREATED.getState());
+        processingRequest.setInvestigator(investigator);
         save(processingRequest);
         return processingRequest;
     }
 
-    public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState, Investigator investigator) {
+    public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState) {
         processingRequest.setLastUpdate(DateUtilities.getTimestamp());
         processingRequest.setState(ProcessState.PROCESSING.getState());
-        processingRequest.setInvestigator(investigator);
         update(processingRequest);
         return processingRequest;
     }

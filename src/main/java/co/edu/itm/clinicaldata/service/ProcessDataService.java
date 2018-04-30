@@ -75,7 +75,7 @@ public class ProcessDataService {
         validateCreatedProcess(processingRequest);
         Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
         //Comenzar proceso en el cluster
-        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING, investigator);
+        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
         return String.format("Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.",
                         investigator.getName(),
                         processingRequest.getIdentifier());

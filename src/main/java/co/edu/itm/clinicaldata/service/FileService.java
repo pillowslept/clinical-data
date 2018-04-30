@@ -12,9 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.exception.ValidateException;
+import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.RandomUtilities;
+import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class FileService {
@@ -24,6 +26,9 @@ public class FileService {
 
     @Autowired
     ProcessingRequestService processingRequestService;
+
+    @Autowired
+    InvestigatorService investigatorService;
 
     private final List<String> languagesAllowed = Arrays.asList(
             Language.JAVA.toString(), Language.PYTHON.toString(),
@@ -35,9 +40,12 @@ public class FileService {
      * @return
      * @throws ValidateException
      */
-    public String upload(MultipartFile file) throws ValidateException {
+    public String upload(MultipartFile file, Long investigatorId) throws ValidateException {
+        validateInvestigatorId(investigatorId);
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         validateExtensionAllowed(fileExtension);
+
+        Investigator investigator = investigatorService.validateAndfind(investigatorId);
 
         Language language = getLanguage(fileExtension);
         byte[] bytes = getBytesFromFile(file);
@@ -50,11 +58,18 @@ public class FileService {
 
         ProcessingRequest processingRequest = processingRequestService
                 .create(identifier, language.getName(), bytes,
-                        fileName, basePath);
+                        fileName, basePath, investigator);
 
-        return String
-                .format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
+        return String.format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
                         processingRequest.getIdentifier());
+    }
+
+    private void validateInvestigatorId(Long investigatorId)
+            throws ValidateException {
+        if (Validations.field(investigatorId)) {
+            throw new ValidateException(
+                    "El campo <investigatorId> debe ser diligenciado");
+        }
     }
 
     private String buildPath(String basePath, String fileName){
