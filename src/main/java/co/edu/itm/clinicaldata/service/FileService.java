@@ -49,7 +49,7 @@ public class FileService {
                 buildPath(basePath, file.getOriginalFilename()));
 
         ProcessingRequest processingRequest = processingRequestService
-                .createProcessingRequest(identifier, language.getName(), bytes,
+                .create(identifier, language.getName(), bytes,
                         fileName, basePath);
 
         return String

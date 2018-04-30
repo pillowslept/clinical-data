@@ -46,7 +46,7 @@ public class ProcessingRequestService {
         return processingRequestRepository.findAll();
     }
 
-    public ProcessingRequest createProcessingRequest(String identifier,
+    public ProcessingRequest create(String identifier,
             String language, byte[] bytes, String fileName, String basePath) {
         ProcessingRequest processingRequest = new ProcessingRequest();
         processingRequest.setIdentifier(identifier);
@@ -60,4 +60,10 @@ public class ProcessingRequestService {
         return processingRequest;
     }
 
+    public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState) {
+        processingRequest.setLastUpdate(DateUtilities.getTimestamp());
+        processingRequest.setState(ProcessState.PROCESSING.getState());
+        save(processingRequest);
+        return processingRequest;
+    }
 }

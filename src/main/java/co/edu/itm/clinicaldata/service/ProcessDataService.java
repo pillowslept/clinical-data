@@ -69,8 +69,7 @@ public class ProcessDataService {
         validateFields(params);
         ProcessingRequest processingRequest = findProccessByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
-        LOGGER.info("Comenzando el procesamiento de la solicitud " + processingRequest.getIdentifier());
-        LOGGER.info("Bytes de la solicitud " + processingRequest.getBytes());
+        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
         return "Señor "
                 + params.getUserName()
                 + " su solicitud ha comenzado a ser procesada por el cluster, el identificador generado es: "
