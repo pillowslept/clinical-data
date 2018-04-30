@@ -74,7 +74,7 @@ public class ProcessDataService {
                 .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
         Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
-        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING, investigator.getId());
+        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING, investigator);
         return "Señor "
                 + investigator.getName()
                 + " su solicitud ha comenzado a ser procesada por el cluster, el identificador generado es: "

@@ -5,10 +5,13 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -49,10 +52,14 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "FILE_NAME", nullable = false)
     private String fileName;
 
-    @Size(max = 10)
+    @Size(max = 20)
     @Column(name = "STATE", nullable = false)
     private String state;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "INVESTIGATOR_ID")
+    Investigator investigator;
+    
     public Long getId() {
         return id;
     }
@@ -123,6 +130,14 @@ public class ProcessingRequest implements Serializable {
 
     public void setLastUpdate(Timestamp lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public Investigator getInvestigator() {
+        return investigator;
+    }
+
+    public void setInvestigator(Investigator investigator) {
+        this.investigator = investigator;
     }
 
 }

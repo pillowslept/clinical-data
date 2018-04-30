@@ -28,12 +28,19 @@ public class InvestigatorService {
         return investigatorRepository.findByName(name);
     }
 
-    public Investigator create(Params params) {
+    public Investigator create(Params params) throws ValidateException {
+        validateCreate(params);
         Investigator investigator = new Investigator();
         investigator.setName(params.getInvestigatorName());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return investigator;
+    }
+
+    private void validateCreate(Params params) throws ValidateException {
+        if(Validations.field(params.getInvestigatorName())){
+            throw new ValidateException("El campo <investigatorName> no es válido");
+        }
     }
 
     public String inactivate(Params params) throws ValidateException {
