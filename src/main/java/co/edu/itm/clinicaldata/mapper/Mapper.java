@@ -12,12 +12,13 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 @ControllerAdvice
 public class Mapper extends ResponseEntityExceptionHandler {
 
-	private static final Logger LOGGER = Logger.getLogger(Mapper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Mapper.class
+            .getName());
 
-	@ExceptionHandler(ValidateException.class)
-	protected ResponseEntity<Object> handleEntityNotFound(ValidateException ex) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
-		LOGGER.error(ex.getMessage(), ex);
-		return new ResponseEntity<>(apiError, apiError.getStatus());
-	}
+    @ExceptionHandler(ValidateException.class)
+    protected ResponseEntity<Object> handleEntityNotFound(ValidateException ex) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
+        LOGGER.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
 }
