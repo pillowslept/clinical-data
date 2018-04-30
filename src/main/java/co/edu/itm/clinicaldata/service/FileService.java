@@ -14,6 +14,7 @@ import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.FileUtilities;
+import co.edu.itm.clinicaldata.util.RandomUtilities;
 
 @Service
 public class FileService {
@@ -28,23 +29,29 @@ public class FileService {
             Language.JAVA.toString(), Language.PYTHON.toString(),
             Language.R.toString());
 
+    /**
+     * Se encarga de crear una solicitud con el archivo a procesar y le asigna un identificador único
+     * @param file
+     * @return
+     * @throws ValidateException
+     */
     public String upload(MultipartFile file) throws ValidateException {
-        String fileExtension = FilenameUtils.getExtension(file
-                .getOriginalFilename());
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         validateExtensionAllowed(fileExtension);
 
         Language language = getLanguage(fileExtension);
         byte[] bytes = getBytesFromFile(file);
+        String identifier = RandomUtilities.randomIdentifier();
         String fileName = file.getOriginalFilename();
-        String basePath = FileUtilities.buildBasePath(language.getName());
+        String basePath = FileUtilities.buildBasePath(language.getName(), identifier);
 
         FileUtilities.createFile(bytes,
                 buildPath(basePath, file.getOriginalFilename()));
 
         ProcessingRequest processingRequest = processingRequestService
-                .createProcessingRequest(language.getName(), bytes, fileName,
-                        basePath);
-        
+                .createProcessingRequest(identifier, language.getName(), bytes,
+                        fileName, basePath);
+
         return String
                 .format("El archivo ha sido almacenado con éxito, identificador generado: <%s>.",
                         processingRequest.getIdentifier());

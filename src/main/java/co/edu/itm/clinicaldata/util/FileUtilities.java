@@ -24,8 +24,8 @@ public class FileUtilities {
         }
     }
 
-    public static String buildBasePath(String languageFolder){
-        String basePath = USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR;
+    public static String buildBasePath(String languageFolder, String identifier){
+        String basePath = USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR + identifier + FILE_SEPARATOR;
         createBasePath(basePath);
         return basePath;
     }
