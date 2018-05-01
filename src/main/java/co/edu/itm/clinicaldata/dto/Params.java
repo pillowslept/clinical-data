@@ -5,6 +5,7 @@ public class Params {
     private String identifier;
     private Long investigatorId;
     private String investigatorName;
+    private String investigatorEmail;
 
     public String getIdentifier() {
         return identifier;
@@ -28,5 +29,13 @@ public class Params {
 
     public void setInvestigatorName(String investigatorName) {
         this.investigatorName = investigatorName;
+    }
+
+    public String getInvestigatorEmail() {
+        return investigatorEmail;
+    }
+
+    public void setInvestigatorEmail(String investigatorEmail) {
+        this.investigatorEmail = investigatorEmail;
     }
 }

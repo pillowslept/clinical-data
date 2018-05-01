@@ -28,6 +28,7 @@ public class InvestigatorService {
         validateCreate(params);
         Investigator investigator = new Investigator();
         investigator.setName(params.getInvestigatorName());
+        investigator.setEmail(params.getInvestigatorEmail());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
         return investigator;
@@ -36,6 +37,9 @@ public class InvestigatorService {
     private void validateCreate(Params params) throws ValidateException {
         if(Validations.field(params.getInvestigatorName())){
             throw new ValidateException("El campo <investigatorName> no es válido");
+        }
+        if(Validations.field(params.getInvestigatorEmail())){
+            throw new ValidateException("El campo <investigatorEmail> no es válido");
         }
     }
 

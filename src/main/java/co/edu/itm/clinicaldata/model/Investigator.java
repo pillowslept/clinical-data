@@ -27,6 +27,10 @@ public class Investigator implements Serializable {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @Size(max = 100)
+    @Column(name = "EMAIL", nullable = false)
+    private String email;
+
     @Size(max = 10)
     @Column(name = "STATE", nullable = false)
     private String state;
@@ -53,6 +57,14 @@ public class Investigator implements Serializable {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }
