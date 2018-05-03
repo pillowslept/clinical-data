@@ -5,6 +5,10 @@ server:
 ---
 spring:
   profiles: local, default
+  http:
+    multipart:
+      max-file-size: 2KB
+      max-request-size: 2KB
 datasource:
   clinicaldata:
     url: jdbc:h2:~/test
@@ -21,6 +25,10 @@ datasource:
 ---
 spring:
   profiles: prod
+  http:
+    multipart:
+      max-file-size: 2KB
+      max-request-size: 2KB
 datasource:
   clinicaldata:
     url: jdbc:mysql://localhost:3306/websystique
