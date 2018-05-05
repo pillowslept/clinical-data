@@ -16,7 +16,6 @@ import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.RandomUtilities;
-import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class FileService {
@@ -41,7 +40,6 @@ public class FileService {
      * @throws ValidateException
      */
     public String upload(MultipartFile file, Long investigatorId) throws ValidateException {
-        validateInvestigatorId(investigatorId);
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         validateExtensionAllowed(fileExtension);
 
@@ -62,14 +60,6 @@ public class FileService {
 
         return String.format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
                         processingRequest.getIdentifier());
-    }
-
-    private void validateInvestigatorId(Long investigatorId)
-            throws ValidateException {
-        if (Validations.field(investigatorId)) {
-            throw new ValidateException(
-                    "El campo <investigatorId> debe ser diligenciado");
-        }
     }
 
     private String buildPath(String basePath, String fileName){
