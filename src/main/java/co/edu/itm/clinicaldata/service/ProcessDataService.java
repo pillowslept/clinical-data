@@ -11,7 +11,6 @@ import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.DateUtilities;
 import co.edu.itm.clinicaldata.util.FileUtilities;
-import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class ProcessDataService {
@@ -35,7 +34,6 @@ public class ProcessDataService {
      * @throws ValidateException
      */
     public String processState(String processIdentifier) throws ValidateException {
-        validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = processingRequestService
                 .validateAndFindByIdentifier(processIdentifier);
         return String
@@ -52,7 +50,6 @@ public class ProcessDataService {
      * @throws ValidateException
      */
     public String processResult(String processIdentifier) throws ValidateException {
-        validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = processingRequestService
                 .validateAndFindByIdentifier(processIdentifier);
         validateFinishedProcess(processingRequest);
@@ -67,27 +64,12 @@ public class ProcessDataService {
     }
 
     /**
-     * Se encarga de consultar el resultado de una solicitud
-     * @param processIdentifier
-     * @return
-     * @throws ValidateException
-     */
-    public ProcessingRequest processResultForReport(String processIdentifier) throws ValidateException {
-        validateProcessIdentifier(processIdentifier);
-        ProcessingRequest processingRequest = processingRequestService
-                .validateAndFindByIdentifier(processIdentifier);
-        validateFinishedProcess(processingRequest);
-        return processingRequest;
-    }
-
-    /**
      * Se encarga de comenzar el proceso de la solicitud previamente creada, envía al cluster el archivo a procesar
      * @param params
      * @return
      * @throws ValidateException
      */
     public String startProcess(Params params) throws ValidateException {
-        validateFields(params);
         ProcessingRequest processingRequest = processingRequestService
                 .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
@@ -120,24 +102,6 @@ public class ProcessDataService {
         if(processingRequest.getState().equals(ProcessState.CREATED.getState())
                 || processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
             throw new ValidateException(String.format("La solicitud <%s> no ha terminado su procesamiento", processingRequest.getIdentifier()));
-        }
-    }
-
-    private void validateFields(Params params) throws ValidateException {
-        if (Validations.field(params.getIdentifier())) {
-            throw new ValidateException(
-                    "El campo <identifier> debe ser diligenciado");
-        }
-        if (Validations.field(params.getInvestigatorId())) {
-            throw new ValidateException(
-                    "El campo <investigatorId> debe ser diligenciado");
-        }
-    }
-
-    private void validateProcessIdentifier(String processId) throws ValidateException {
-        if (Validations.field(processId)) {
-            throw new ValidateException(
-                    "El <identifier> del proceso debe ser válido");
         }
     }
 
