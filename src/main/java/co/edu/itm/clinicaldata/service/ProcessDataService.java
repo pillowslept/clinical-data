@@ -67,6 +67,20 @@ public class ProcessDataService {
     }
 
     /**
+     * Se encarga de consultar el resultado de una solicitud
+     * @param processIdentifier
+     * @return
+     * @throws ValidateException
+     */
+    public ProcessingRequest processResultForReport(String processIdentifier) throws ValidateException {
+        validateProcessIdentifier(processIdentifier);
+        ProcessingRequest processingRequest = processingRequestService
+                .validateAndFindByIdentifier(processIdentifier);
+        validateFinishedProcess(processingRequest);
+        return processingRequest;
+    }
+
+    /**
      * Se encarga de comenzar el proceso de la solicitud previamente creada, envía al cluster el archivo a procesar
      * @param params
      * @return
