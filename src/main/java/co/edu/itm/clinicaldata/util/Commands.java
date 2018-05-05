@@ -1,13 +1,19 @@
 package co.edu.itm.clinicaldata.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 
+import co.edu.itm.clinicaldata.dto.Output;
+
 public class Commands {
-    
+
+    public static final String JAVA_EXECUTE_COMMAND = "java -cp ";
+    public static final String JAVA_COMPILE_COMMAND = "javac ";
     private static final Logger LOGGER = Logger.getLogger(Commands.class.getName());
 
     public static void prepareExecute(String pathFile){
@@ -21,29 +27,44 @@ public class Commands {
             command = "qsub " + pathFile;
         }
 
-        String output = executeCommand(command);
+        Output output = executeCommand(command);
 
         LOGGER.error(String.format("Resultado de comando ejecutado <%s>", output));
     }
 
-    public static String executeCommand(String command) {
+    private static String readOutput(InputStream inputStream) throws IOException {
         StringBuffer output = new StringBuffer();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                inputStream));
+        String line = "";
+        while ((line = reader.readLine()) != null) {
+            output.append(line + "\n");
+        }
+        return output.toString();
+    }
+    
+    public static Output executeCommand(String command) {
+        Output output = new Output();
         try {
             Process p = Runtime.getRuntime().exec(command);
             p.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine())!= null) {
-                output.append(line + "\n");
-            }
+            output.setResult(readOutput(p.getInputStream()));
+            output.setError(readOutput(p.getErrorStream()));
         } catch (Exception ex) {
             LOGGER.error(String.format("Ocurrió un error intentando ejecutar el comando <%s>", command), ex);
         }
-        return output.toString();
+        return output;
+    }
+
+    public static Output executeJavaCommand(String baseCommand, String pathFile){
+        String command = baseCommand + pathFile;
+        LOGGER.info(String.format("Command <%s>", command));
+        return executeCommand(command);
     }
 
     public static void main(String[] args) {
         prepareExecute("");
+        executeJavaCommand(JAVA_EXECUTE_COMMAND, "C:\\Users\\ceiba\\clinicaldata\\java\\9be89737-8fc6-467f-a268-0ff3df687e3c\\;. Test");
     }
 
 }
