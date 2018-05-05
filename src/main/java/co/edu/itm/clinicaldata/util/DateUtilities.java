@@ -16,4 +16,8 @@ public class DateUtilities {
     public static Timestamp getTimestamp(){
         return new Timestamp(System.currentTimeMillis());
     }
+
+    public static String getActualDate(){
+        return timestampToString(getTimestamp());
+    }
 }
