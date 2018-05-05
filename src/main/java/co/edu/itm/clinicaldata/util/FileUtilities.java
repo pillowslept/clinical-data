@@ -14,6 +14,7 @@ public class FileUtilities {
     private static final String FOLDER_NAME = "clinicaldata";
     private static final String USER_HOME = System.getProperty("user.home");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static final String PDF_FILE_EXTENSION = "pdf";
     private static final Logger LOGGER = Logger.getLogger(FileUtilities.class.getName());
 
     public static void createFile(byte[] functionToProcess, String path) {
@@ -45,6 +46,10 @@ public class FileUtilities {
             LOGGER.error(String.format("El archivo de la ruta <%s> no pudo ser leído. ", fileName), ex);
         }
         return sb.toString();
+    }
+
+    public static String createFileName(String fileName, String extension){
+        return String.format("%s.%s", fileName, extension);
     }
 
 }
