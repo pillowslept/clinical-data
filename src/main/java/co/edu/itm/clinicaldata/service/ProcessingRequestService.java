@@ -12,6 +12,7 @@ import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.repository.ProcessingRequestRepository;
 import co.edu.itm.clinicaldata.util.DateUtilities;
+import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 @Transactional
@@ -40,12 +41,24 @@ public class ProcessingRequestService {
         return processingRequestRepository.findAll();
     }
 
+    public List<ProcessingRequest> findByInvestigatorId(Long investigatorId) {
+        return processingRequestRepository.findByInvestigatorId(investigatorId);
+    }
+
     public ProcessingRequest validateAndFindByIdentifier(String processIdentifier) throws ValidateException {
+        validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findByIdentifier(processIdentifier);
         if(processingRequest == null){
             throw new ValidateException(String.format("La solicitud con identificador <%s> no existe en la base de datos", processIdentifier));
         }
         return processingRequest;
+    }
+
+    private void validateProcessIdentifier(String processIdentifier) throws ValidateException {
+        if (Validations.field(processIdentifier)) {
+            throw new ValidateException(
+                    "El <identifier> del proceso debe ser válido");
+        }
     }
 
     public ProcessingRequest create(String identifier,
