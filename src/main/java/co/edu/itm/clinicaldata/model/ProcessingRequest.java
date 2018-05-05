@@ -42,8 +42,8 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "LANGUAGE", nullable = false)
     private String language;
 
-    @Column(name = "BYTES", nullable = false)
     @Lob
+    @Column(name = "BYTES", nullable = false)
     private byte[] bytes;
 
     @Column(name = "BASE_PATH", nullable = false)
@@ -52,9 +52,13 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "FILE_NAME", nullable = false)
     private String fileName;
 
-    @Size(max = 20)
+    @Size(max = 50)
     @Column(name = "STATE", nullable = false)
     private String state;
+
+    @Size(max = 400)
+    @Column(name = "RESULT", nullable = true)
+    private String result;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INVESTIGATOR_ID")
@@ -138,6 +142,14 @@ public class ProcessingRequest implements Serializable {
 
     public void setInvestigator(Investigator investigator) {
         this.investigator = investigator;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
 }
