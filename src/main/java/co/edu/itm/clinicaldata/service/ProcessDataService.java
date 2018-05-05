@@ -25,6 +25,9 @@ public class ProcessDataService {
     @Autowired
     ProcessingRequestService processingRequestService;
 
+    @Autowired
+    ClusterService clusterService;
+
     /**
      * Se encarga de obtener el estado de una solicitud por medio de su identificador
      * @param processIdentifier
@@ -57,9 +60,10 @@ public class ProcessDataService {
         String readedContent = FileUtilities.readFile(fullPath);
         LOGGER.info("Contenido del archivo leído " + readedContent);
         return String
-                .format("La solicitud <%s> ha terminado su procesamiento, su estado actual es %s",
+                .format("La solicitud <%s> ha terminado su procesamiento, su estado actual es <%s>, su resultado fue <%s>",
                         processingRequest.getIdentifier(),
-                        processingRequest.getState());
+                        processingRequest.getState(),
+                        processingRequest.getResult());
     }
 
     /**
@@ -74,8 +78,11 @@ public class ProcessDataService {
                 .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
         Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
-        //Comenzar proceso en el cluster
         processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
+
+        //Se llama proceso del cluster en background
+        clusterService.sendProcessToCluster(processingRequest);
+
         return String.format("Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.",
                         investigator.getName(),
                         processingRequest.getIdentifier());
