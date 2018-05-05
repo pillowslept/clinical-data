@@ -31,7 +31,7 @@ public class ClusterService {
 
         String result = "";
         ProcessState processState = null;
-        if (Validations.field(compileOutput.getError())) {
+        if (!Validations.field(compileOutput.getError())) {
             result = compileOutput.getError();
             processState = ProcessState.FINISHED_WITH_ERRORS;
             LOGGER.info("Clase no compilada, presenta errores");
@@ -41,7 +41,7 @@ public class ClusterService {
                     Commands.JAVA_EXECUTE_COMMAND,
                     buildFilePathExecute(processingRequest.getBasePath(),
                             processingRequest.getFileName()));
-            if (Validations.field(executeOutput.getError())) {
+            if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
                 processState = ProcessState.FINISHED_WITH_ERRORS;
                 LOGGER.info("Clase no ejecutada, presenta errores");
