@@ -70,6 +70,12 @@ public class ClusterService {
         return basePath + ";. " + FilenameUtils.getBaseName(fileName);
     }
 
+    public boolean validateProcessState(String process) {
+        boolean hasEndProcess = false;
+        sleep();
+        return hasEndProcess;
+    }
+
     private void sleep() {
         LOGGER.info("Comenzando el proceso en el cluster, simulando espera de 20 segundos");
         try {
