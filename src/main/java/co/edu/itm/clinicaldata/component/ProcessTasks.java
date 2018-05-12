@@ -19,21 +19,15 @@ public class ProcessTasks {
     @Autowired
     ClusterService clusterService;
 
-    public ProcessTasks(){
-        ProcessQueue.getInstance().add("123456");
-        ProcessQueue.getInstance().add("987654");
-        ProcessQueue.getInstance().add("753951");
-    }
-
     @Scheduled(fixedDelay = 10000)
     public void validateProcessQueue() {
         if(!ProcessQueue.getInstance().isEmpty()){
-            String process = ProcessQueue.getInstance().get();
-            LOGGER.info(String.format(PROCESS_STARTED, process));
-            boolean hasEndProcess = clusterService.validateProcessState(process);
+            String identifier = ProcessQueue.getInstance().get();
+            LOGGER.info(String.format(PROCESS_STARTED, identifier));
+            boolean hasEndProcess = clusterService.validateProcessState(identifier);
             if(hasEndProcess){
                 ProcessQueue.getInstance().remove();
-                LOGGER.info(String.format(PROCESS_FINISHED, process));
+                LOGGER.info(String.format(PROCESS_FINISHED, identifier));
             }
         }
     }
