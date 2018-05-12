@@ -11,9 +11,10 @@ import org.apache.log4j.Logger;
 
 public class FileUtilities {
 
+    private static final String RESOURCES_FOLDER = "resources";
     private static final String FOLDER_NAME = "clinicaldata";
     private static final String USER_HOME = System.getProperty("user.home");
-    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String PDF_FILE_EXTENSION = "pdf";
     private static final Logger LOGGER = Logger.getLogger(FileUtilities.class.getName());
 
@@ -26,9 +27,17 @@ public class FileUtilities {
     }
 
     public static String buildBasePath(String languageFolder, String identifier){
-        String basePath = USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR + identifier + FILE_SEPARATOR;
+        String basePath = baseLanguageFolder(languageFolder) + identifier + FILE_SEPARATOR;
         createBasePath(basePath);
         return basePath;
+    }
+
+    private static String baseLanguageFolder(String languageFolder){
+        return USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR;
+    }
+
+    public static String resourceLanguageFolder(String languageFolder){
+        return USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR + RESOURCES_FOLDER + FILE_SEPARATOR;
     }
 
     public static void createBasePath(String basePath){
@@ -50,6 +59,11 @@ public class FileUtilities {
 
     public static String createFileName(String fileName, String extension){
         return String.format("%s.%s", fileName, extension);
+    }
+
+    public static boolean existsFile(String filePath){
+        File file = new File(filePath);
+        return file.exists() && !file.isDirectory();
     }
 
 }
