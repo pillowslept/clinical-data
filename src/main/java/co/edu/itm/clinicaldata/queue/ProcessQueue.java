@@ -15,10 +15,10 @@ public class ProcessQueue {
     /**
      * Agrega a la cola de espera
      * 
-     * @param process
+     * @param identifier
      */
-    public void add(String process) {
-        getInstance().queve.add(process);
+    public void add(String identifier) {
+        getInstance().queve.add(identifier);
     }
 
     /**
