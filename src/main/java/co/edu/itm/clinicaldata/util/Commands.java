@@ -14,6 +14,7 @@ public class Commands {
 
     public static final String JAVA_EXECUTE_COMMAND = "java -cp ";
     public static final String JAVA_COMPILE_COMMAND = "javac ";
+    public static final String PATH_SEPARATOR = System.getProperty("path.separator");
     private static final Logger LOGGER = Logger.getLogger(Commands.class.getName());
 
     public static void prepareExecute(String pathFile){
