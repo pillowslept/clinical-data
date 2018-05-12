@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import co.edu.itm.clinicaldata.dto.Output;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
+import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.util.Commands;
 import co.edu.itm.clinicaldata.util.Validations;
 
@@ -22,6 +23,7 @@ public class ClusterService {
 
     @Async
     public void sendProcessToCluster(ProcessingRequest processingRequest) {
+        ProcessQueue.getInstance().add(processingRequest.getIdentifier());
         sleep();
 
         Output compileOutput = Commands.executeJavaCommand(
@@ -67,11 +69,16 @@ public class ClusterService {
     }
 
     private String buildFilePathExecute(String basePath, String fileName) {
-        return basePath + ";. " + FilenameUtils.getBaseName(fileName);
+        return basePath + Commands.PATH_SEPARATOR + ". " + FilenameUtils.getBaseName(fileName);
     }
 
-    public boolean validateProcessState(String process) {
+    private String buildFilePathExecuteWithJar(String basePath, String fileName) {
+        return basePath + "." + Commands.PATH_SEPARATOR + " JARs " + FilenameUtils.getBaseName(fileName);
+    }
+
+    public boolean validateProcessState(String identifier) {
         boolean hasEndProcess = false;
+        ProcessingRequest processingRequest = processingRequestService.findByIdentifier(identifier);
         sleep();
         return hasEndProcess;
     }
