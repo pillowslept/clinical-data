@@ -58,12 +58,24 @@ public class FileService {
         FileUtilities.createFile(bytes,
                 buildPath(basePath, file.getOriginalFilename()));
 
+        String resourcesString = getResourcesString(resources,
+                requiredResources);
+
         ProcessingRequest processingRequest = processingRequestService
                 .create(identifier, language.getName(), bytes,
-                        fileName, basePath, investigator);
+                        fileName, basePath, investigator, resourcesString);
 
         return String.format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
                         processingRequest.getIdentifier());
+    }
+
+    private String getResourcesString(ResourcesWrapper resources,
+            boolean requiredResources) {
+        String resourcesString = null;
+        if(requiredResources){
+            resourcesString = String.join(",", resources.getResources());
+        }
+        return resourcesString;
     }
 
     private boolean validateRequiredResources(ResourcesWrapper resources,
