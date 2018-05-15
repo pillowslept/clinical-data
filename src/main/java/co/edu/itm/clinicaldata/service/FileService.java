@@ -32,8 +32,8 @@ public class FileService {
     InvestigatorService investigatorService;
 
     private final List<String> languagesAllowed = Arrays.asList(
-            Language.JAVA.toString(), Language.PYTHON.toString(),
-            Language.R.toString());
+            Language.JAVA.getName(), Language.PYTHON.getName(),
+            Language.R.getName());
 
     /**
      * Se encarga de crear una solicitud con el archivo a procesar y le asigna un identificador único

@@ -23,7 +23,6 @@ import co.edu.itm.clinicaldata.util.Validations;
 public class ClusterService {
 
     private static final String SPACE = " ";
-
     private static final String COMMA = ",";
 
     private static final Logger LOGGER = Logger.getLogger(ClusterService.class.getName());
@@ -136,7 +135,12 @@ public class ClusterService {
     public boolean validateProcessState(String identifier) {
         boolean hasEndProcess = false;
         ProcessingRequest processingRequest = processingRequestService.findByIdentifier(identifier);
-        sleep();
+        if(!processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
+            hasEndProcess = true;
+        }else{
+            //Validar estado de la solicitud en el cluster
+            sleep();
+        }
         return hasEndProcess;
     }
 
