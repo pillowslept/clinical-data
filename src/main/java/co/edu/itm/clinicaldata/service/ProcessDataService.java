@@ -74,6 +74,7 @@ public class ProcessDataService {
                 .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
         Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
+        clusterService.validateLanguageTemplate(processingRequest);
         processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
 
         //Se llama proceso del cluster en background

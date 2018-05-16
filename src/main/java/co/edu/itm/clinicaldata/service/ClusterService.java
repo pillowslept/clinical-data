@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import co.edu.itm.clinicaldata.dto.Output;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
+import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.util.Commands;
@@ -22,6 +23,9 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Service
 public class ClusterService {
 
+    private static final String TEMPLATE_NAME = "template.txt";
+    private static final String KEY_TO_REPLACE = "%COMMAND%";
+    private static final String SH_FILE_NAME = "qsub.sh";
     private static final String SPACE = " ";
     private static final String COMMA = ",";
 
@@ -90,6 +94,9 @@ public class ClusterService {
             LOGGER.info("Clase no compilada, presenta errores");
         } else {
             LOGGER.info("Clase compilada con éxito");
+
+            createBourneShellScript(processingRequest, executeCommand + executeBaseCommand);
+
             Output executeOutput = Commands.executeJavaCommand(executeBaseCommand, executeCommand);
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
@@ -105,6 +112,13 @@ public class ClusterService {
         output.setResult(result);
         output.setState(processState.getState());
         return output;
+    }
+
+    private void createBourneShellScript(ProcessingRequest processingRequest, String command) {
+        String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
+        String readedContent = FileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
+        readedContent = readedContent.replace(KEY_TO_REPLACE, command);
+        FileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
     }
 
     private String buildResourcesPath(ProcessingRequest processingRequest) {
@@ -142,6 +156,17 @@ public class ClusterService {
             sleep();
         }
         return hasEndProcess;
+    }
+
+    public void validateLanguageTemplate(ProcessingRequest processingRequest) throws ValidateException{
+        String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
+        boolean exists = FileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
+        if (!exists) {
+            throw new ValidateException(
+                    String.format(
+                            "El template <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
+                            TEMPLATE_NAME));
+        }
     }
 
     private void sleep() {

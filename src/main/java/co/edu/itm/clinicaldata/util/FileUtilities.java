@@ -12,8 +12,10 @@ import org.apache.log4j.Logger;
 public class FileUtilities {
 
     private static final String RESOURCES_FOLDER = "resources";
+    private static final String TEMPLATE_FOLDER = "resources";
     private static final String FOLDER_NAME = "clinicaldata";
     private static final String USER_HOME = System.getProperty("user.home");
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String PATH_SEPARATOR = System.getProperty("path.separator");
     public static final String PDF_FILE_EXTENSION = "pdf";
@@ -38,7 +40,11 @@ public class FileUtilities {
     }
 
     public static String resourceLanguageFolder(String languageFolder){
-        return USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR + RESOURCES_FOLDER + FILE_SEPARATOR;
+        return baseLanguageFolder(languageFolder) + RESOURCES_FOLDER + FILE_SEPARATOR;
+    }
+
+    public static String templateLanguageFolder(String languageFolder){
+        return baseLanguageFolder(languageFolder) + TEMPLATE_FOLDER + FILE_SEPARATOR;
     }
 
     public static void createBasePath(String basePath){
@@ -51,6 +57,7 @@ public class FileUtilities {
             String sCurrentLine;
             while ((sCurrentLine = br.readLine()) != null) {
                 sb.append(sCurrentLine);
+                sb.append(LINE_SEPARATOR);
             }
         } catch (IOException ex) {
             LOGGER.error(String.format("El archivo de la ruta <%s> no pudo ser leído. ", fileName), ex);
@@ -67,4 +74,14 @@ public class FileUtilities {
         return file.exists() && !file.isDirectory();
     }
 
+    public static void main(String[] args) {
+        
+        String readedContent = FileUtilities.readFile("C:\\Users\\ceiba\\clinicaldata\\java\\resources\\template.txt");
+        LOGGER.info("Contenido del archivo leído " + readedContent);
+        //System.lineSeparator();
+        readedContent = readedContent.replace("%COMMAND%", "java -cp hola");
+        createFile(readedContent.getBytes(), "C:\\Users\\ceiba\\clinicaldata\\java\\resources\\generado.txt");
+    }
+    
+    
 }
