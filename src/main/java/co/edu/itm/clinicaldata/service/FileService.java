@@ -32,8 +32,8 @@ public class FileService {
     InvestigatorService investigatorService;
 
     private final List<String> languagesAllowed = Arrays.asList(
-            Language.JAVA.getName(), Language.PYTHON.getName(),
-            Language.R.getName());
+            Language.JAVA.getFileExtension(), Language.PYTHON.getFileExtension(),
+            Language.R.getFileExtension());
 
     /**
      * Se encarga de crear una solicitud con el archivo a procesar y le asigna un identificador único
@@ -80,7 +80,7 @@ public class FileService {
 
     private boolean validateRequiredResources(ResourcesWrapper resources,
             String languageFolder) throws ValidateException {
-        boolean requiredResources = !Validations.field(resources.getResources());
+        boolean requiredResources = resources != null && !Validations.field(resources.getResources());
         if(requiredResources){
             String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(languageFolder);
             validateResourcesExistence(resources, resourceLanguageFolder);
@@ -131,12 +131,12 @@ public class FileService {
 
     private Language getLanguage(String languageToProcess) {
         Language language = null;
-        if (languageToProcess.equalsIgnoreCase(Language.JAVA.getName())) {
+        if (languageToProcess.equalsIgnoreCase(Language.JAVA.getFileExtension())) {
             language = Language.JAVA;
         } else if (languageToProcess
-                .equalsIgnoreCase(Language.PYTHON.getName())) {
+                .equalsIgnoreCase(Language.PYTHON.getFileExtension())) {
             language = Language.PYTHON;
-        } else if (languageToProcess.equalsIgnoreCase(Language.R.getName())) {
+        } else if (languageToProcess.equalsIgnoreCase(Language.R.getFileExtension())) {
             language = Language.R;
         }
         LOGGER.info("El lenguaje a procesar es " + language);

@@ -12,9 +12,15 @@ import co.edu.itm.clinicaldata.dto.Output;
 
 public class Commands {
 
+    //JAVA COMMANDS
     public static final String JAVA_EXECUTE_COMMAND = "java -cp ";
     public static final String JAVA_COMPILE_COMMAND = "javac ";
     public static final String JAVA_COMPILE_COMMAND_RESOURCES = "javac -cp ";
+    //PYTHON COMMANDS
+    public static final String PYTHON_EXECUTE_COMMAND = "python ";
+    //R COMMANDS
+    public static final String R_EXECUTE_COMMAND = "R CMD BATCH ";
+
     private static final Logger LOGGER = Logger.getLogger(Commands.class.getName());
 
     public static void prepareExecute(String pathFile){
@@ -57,7 +63,7 @@ public class Commands {
         return output;
     }
 
-    public static Output executeJavaCommand(String baseCommand, String pathFile){
+    public static Output executeCommand(String baseCommand, String pathFile){
         String command = baseCommand + pathFile;
         LOGGER.info(String.format("Command <%s>", command));
         return executeCommand(command);
@@ -65,7 +71,7 @@ public class Commands {
 
     public static void main(String[] args) {
         prepareExecute("");
-        executeJavaCommand(JAVA_EXECUTE_COMMAND, "C:\\Users\\ceiba\\clinicaldata\\java\\9be89737-8fc6-467f-a268-0ff3df687e3c\\;. Test");
+        executeCommand(JAVA_EXECUTE_COMMAND, "C:\\Users\\ceiba\\clinicaldata\\java\\9be89737-8fc6-467f-a268-0ff3df687e3c\\;. Test");
     }
 
 }

@@ -15,7 +15,6 @@ import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
-import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.util.Commands;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
@@ -36,16 +35,15 @@ public class ClusterService {
 
     @Async
     public void sendProcessToCluster(ProcessingRequest processingRequest) {
-        //ProcessQueue.getInstance().add(processingRequest.getIdentifier());
         sleep();
 
         Output output = new Output();
         if (processingRequest.getLanguage().equals(Language.JAVA.getName())) {
             output = javaProcess(processingRequest);
         } else if (processingRequest.getLanguage().equals(Language.PYTHON.getName())) {
-
+            output = pythonProcess(processingRequest);
         } else if (processingRequest.getLanguage().equals(Language.R.getName())) {
-
+            output = rProcess(processingRequest);
         }else{
 
         }
@@ -53,6 +51,30 @@ public class ClusterService {
         updateProcessingRequest(processingRequest, output);
     }
     
+    private Output pythonProcess(ProcessingRequest processingRequest) {
+        Output output = new Output();
+
+        String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+        createBourneShellScript(processingRequest, command);
+        //Execute qsub command
+
+        output.setResult("Proceso ok");
+        output.setState(ProcessState.FINISHED_OK.getState());
+        return output;
+    }
+
+    private Output rProcess(ProcessingRequest processingRequest) {
+        Output output = new Output();
+
+        String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+        createBourneShellScript(processingRequest, command);
+        //Execute qsub command
+
+        output.setResult("Proceso ok");
+        output.setState(ProcessState.FINISHED_OK.getState());
+        return output;
+    }
+
     private Output javaProcess(ProcessingRequest processingRequest){
         Output output = new Output();
         String result = "";
@@ -86,7 +108,7 @@ public class ClusterService {
                     processingRequest.getFileName());
         }
 
-        Output compileOutput = Commands.executeJavaCommand(compileBaseCommand, compileCommand);
+        Output compileOutput = Commands.executeCommand(compileBaseCommand, compileCommand);
 
         if (!Validations.field(compileOutput.getError())) {
             result = compileOutput.getError();
@@ -97,7 +119,7 @@ public class ClusterService {
 
             createBourneShellScript(processingRequest, executeCommand + executeBaseCommand);
 
-            Output executeOutput = Commands.executeJavaCommand(executeBaseCommand, executeCommand);
+            Output executeOutput = Commands.executeCommand(executeBaseCommand, executeCommand);
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
                 processState = ProcessState.FINISHED_WITH_ERRORS;
