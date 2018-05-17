@@ -15,6 +15,7 @@ import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
+import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.util.Commands;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
@@ -22,6 +23,8 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Service
 public class ClusterService {
 
+    private static final String ERR_OUTPUT_FILE = "prueba.err";
+    private static final String LOG_OUTPUT_FILE = "prueba.out";
     private static final String TEMPLATE_NAME = "template.txt";
     private static final String KEY_TO_REPLACE = "%COMMAND%";
     private static final String SH_FILE_NAME = "qsub.sh";
@@ -33,6 +36,11 @@ public class ClusterService {
     @Autowired
     ProcessingRequestService processingRequestService;
 
+    /**
+     * Crea los archivos necesarios para enviar a través del comando qsub una solicitud
+     * de procesamiento al servidor
+     * @param processingRequest
+     */
     @Async
     public void sendProcessToCluster(ProcessingRequest processingRequest) {
         sleep();
@@ -45,36 +53,76 @@ public class ClusterService {
         } else if (processingRequest.getLanguage().equals(Language.R.getName())) {
             output = rProcess(processingRequest);
         }else{
-
+            //Lenguage no soportado
         }
 
         updateProcessingRequest(processingRequest, output);
+        ProcessQueue.getInstance().add(processingRequest.getIdentifier());
     }
-    
+
+    /**
+     * Creación de archivos requeridos en procesamiento de archivo .py (Python)
+     * @param processingRequest
+     * @return
+     */
     private Output pythonProcess(ProcessingRequest processingRequest) {
         Output output = new Output();
 
         String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
         createBourneShellScript(processingRequest, command);
         //Execute qsub command
+        //executeQsub(processingRequest, output);
 
-        output.setResult("Proceso ok");
-        output.setState(ProcessState.FINISHED_OK.getState());
+        output.setState(ProcessState.PROCESSING.getState());
         return output;
     }
 
+    /**
+     * Creación de archivos requeridos en procesamiento de archivo .r (R)
+     * @param processingRequest
+     * @return
+     */
     private Output rProcess(ProcessingRequest processingRequest) {
         Output output = new Output();
 
         String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
         createBourneShellScript(processingRequest, command);
         //Execute qsub command
+        //executeQsub(processingRequest, output);
 
-        output.setResult("Proceso ok");
-        output.setState(ProcessState.FINISHED_OK.getState());
+        output.setState(ProcessState.PROCESSING.getState());
         return output;
     }
 
+    /**
+     * Ejecuta el archivo previamente creado y lo encola a través del comando qsub en el servidor
+     * @param processingRequest
+     * @param output
+     */
+    private void executeQsub(ProcessingRequest processingRequest, Output output) {
+        String result = "";
+        ProcessState processState = null;
+        Output executeOutput = Commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
+        if (!Validations.field(executeOutput.getError())) {
+            result = executeOutput.getError();
+            processState = ProcessState.FINISHED_WITH_ERRORS;
+            LOGGER.info("Archivo enviado al cluster presenta errores");
+        } else {
+            result = executeOutput.getResult();
+            processState = ProcessState.FINISHED_OK;
+            LOGGER.info("Archivo enviado al cluster ok");
+        }
+
+        output.setResult(result);
+        output.setState(processState.getState());
+    }
+
+    /**
+     * Creación de archivos requeridos en procesamiento de archivo .java (java)
+     * y sus recursos necesarios en proceso previo de compilación
+     * @param processingRequest
+     * @return
+     */
     private Output javaProcess(ProcessingRequest processingRequest){
         Output output = new Output();
         String result = "";
@@ -136,6 +184,12 @@ public class ClusterService {
         return output;
     }
 
+    /**
+     * Consulta el contenido de un archivo previamente configurado en el servidor,
+     * con el contenido crea un archivo .sh en el folder del procesamiento
+     * @param processingRequest
+     * @param command
+     */
     private void createBourneShellScript(ProcessingRequest processingRequest, String command) {
         String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
         String readedContent = FileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
@@ -143,6 +197,11 @@ public class ClusterService {
         FileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
     }
 
+    /**
+     * Construe la URL de todos los resources requeridos en el procesamiento
+     * @param processingRequest
+     * @return
+     */
     private String buildResourcesPath(ProcessingRequest processingRequest) {
         String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
         StringBuilder resourcesPath = new StringBuilder();
@@ -154,6 +213,11 @@ public class ClusterService {
         return resourcesPath.toString();
     }
 
+    /**
+     * Actualiza una solicitud, modificando su estado actual
+     * @param processingRequest
+     * @param output
+     */
     private void updateProcessingRequest(ProcessingRequest processingRequest, Output output) {
         processingRequest.setResult(output.getResult());
         processingRequest.setState(output.getState());
@@ -168,18 +232,51 @@ public class ClusterService {
         return basePath + FileUtilities.PATH_SEPARATOR + ". " + FilenameUtils.getBaseName(fileName);
     }
 
+    /**
+     * Valida si un proceso enviado al cluster ha terminado de ser procesado.
+     * Valida si existe archivo .out o .err dentro del folder de creación del qsub
+     * @param identifier
+     * @return
+     */
     public boolean validateProcessState(String identifier) {
         boolean hasEndProcess = false;
+        String result = "";
+        ProcessState processState = null;
         ProcessingRequest processingRequest = processingRequestService.findByIdentifier(identifier);
+        LOGGER.info("State" + processingRequest.getState());
         if(!processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
             hasEndProcess = true;
         }else{
-            //Validar estado de la solicitud en el cluster
-            sleep();
+            boolean exists = FileUtilities.existsFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
+            if(exists){
+                hasEndProcess = true;
+                result = FileUtilities.readFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
+                processState = ProcessState.FINISHED_OK;
+            }else{
+                exists = FileUtilities.existsFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
+                if(exists){
+                    hasEndProcess = true;
+                    result = FileUtilities.readFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
+                    processState = ProcessState.FINISHED_WITH_ERRORS;
+                }
+            }
+
+            if(exists){
+                Output output = new Output();
+                output.setResult(result);
+                output.setState(processState.getState());
+                updateProcessingRequest(processingRequest, output);
+            }
         }
         return hasEndProcess;
     }
 
+    /**
+     * Valida que exista un archivo previamente configurado en el servidor, 
+     * que es usado como base de creación de archivo .sh
+     * @param processingRequest
+     * @throws ValidateException
+     */
     public void validateLanguageTemplate(ProcessingRequest processingRequest) throws ValidateException{
         String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
         boolean exists = FileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
