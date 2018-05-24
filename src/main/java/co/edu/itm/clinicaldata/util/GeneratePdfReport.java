@@ -55,6 +55,12 @@ public class GeneratePdfReport {
                 table.addCell(bodyCell(DateUtilities.timestampToString(request.getCreationDate())));
                 table.addCell(bodyCell(request.getFileName()));
                 table.addCell(bodyCell(request.getState()));
+
+                if(Validations.field(request.getResult())){
+                    PdfPCell cell = bodyCell("Resultado: " + request.getResult());
+                    cell.setColspan(5);
+                    table.addCell(cell);
+                }
             }
 
             PdfWriter.getInstance(document, out);
