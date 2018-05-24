@@ -19,21 +19,14 @@ Definición de una arquitectura basada en servicios REST que proporcione un ambi
 
 ### Prerrequisitos
 
-```
-Eclipse, Spring Tool Suite (STS) o similares
-```
+* Eclipse, Spring Tool Suite (STS) o similares
 
-```
-Consumidor de servicios REST como Advance Rest Client, Postman o similares
-```
+* Consumidor de servicios REST como Advance Rest Client, Postman o similares
 
-```
-Configurar como variables de entorno Java, Python y R
-```
+* Configurar como variables de entorno Java, Python y R
 
-```
-Acceso de lectura, escritura y ejecución de un folder configurable
-```
+* Acceso de lectura, escritura y ejecución de un folder configurable
+
 
 ### Servicios definidos
 
@@ -77,3 +70,4 @@ http://localhost:9000/ClinicalData/api/report/investigator/{investigatorId} *GET
 ## Autores
 
 * **Juan Camilo Velásquez Vanegas** - [Juan Camilo Velásquez](https://github.com/pillowslept)
+
