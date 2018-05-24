@@ -53,9 +53,9 @@ http://localhost:9000/ClinicalData/
 
 Ahora, todos los servicios son definidos dentro el siguiente subpath:
 
-```
+|
 http://localhost:9000/ClinicalData/api/
-```
+|
 
 Finalmente, cada servicios construido:
 
