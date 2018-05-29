@@ -165,8 +165,9 @@ public class ClusterService {
         } else {
             LOGGER.info("Clase compilada con éxito");
 
-            createBourneShellScript(processingRequest, executeCommand + executeBaseCommand);
+            createBourneShellScript(processingRequest, executeBaseCommand + executeCommand);
 
+            processState = ProcessState.PROCESSING;
             Output executeOutput = Commands.executeCommand(executeBaseCommand, executeCommand);
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
