@@ -1,5 +1,6 @@
 package co.edu.itm.clinicaldata.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.repository.ProcessResourceRepository;
+import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
@@ -39,4 +41,41 @@ public class ProcessResourceService {
     public List<ProcessResource> findByProcessingRequestId(Long processingRequestId) {
         return processResourceRepository.findByProcessingRequestId(processingRequestId);
     }
+
+    public List<ProcessResource> validateRequiredResources(List<Resource> resources, ProcessingRequest processingRequest) throws ValidateException {
+        List<ProcessResource> listProcessResource = new ArrayList<>();
+        if(!Validations.field(resources)){
+            String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
+            listProcessResource = validateResourcesExistence(resources, resourceLanguageFolder, processingRequest);
+        }
+        return listProcessResource;
+    }
+
+    private List<ProcessResource> validateResourcesExistence(
+            List<Resource> resources, String resourceLanguageFolder,
+            ProcessingRequest processingRequest) throws ValidateException {
+        for (Resource resource : resources) {
+            if (Validations.field(resource.getName())) {
+                throw new ValidateException("El campo <name> de los recursos debe ser válido");
+            }
+            boolean exists = FileUtilities.existsFile(resourceLanguageFolder + resource.getName());
+            if (!exists) {
+                throw new ValidateException(
+                        String.format(
+                                "El recurso <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
+                                resource.getName()));
+            }
+        }
+        return createResources(resources, processingRequest);
+    }
+
+    private List<ProcessResource> createResources(List<Resource> resources,
+            ProcessingRequest processingRequest) throws ValidateException {
+        List<ProcessResource> listProcessResource = new ArrayList<>();
+        for(Resource resource : resources){
+            listProcessResource.add(create(resource, processingRequest));
+        }
+        return listProcessResource;
+    }
+
 }
