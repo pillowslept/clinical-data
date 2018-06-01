@@ -61,8 +61,9 @@ public class ProcessingRequestService {
         }
     }
 
-    public ProcessingRequest create(String identifier,
-            String language, byte[] bytes, String fileName, String basePath, Investigator investigator, String resourcesString) {
+    public ProcessingRequest create(String identifier, String language,
+            byte[] bytes, String fileName, String basePath,
+            Investigator investigator) {
         ProcessingRequest processingRequest = new ProcessingRequest();
         processingRequest.setIdentifier(identifier);
         processingRequest.setCreationDate(DateUtilities.getTimestamp());
@@ -72,7 +73,6 @@ public class ProcessingRequestService {
         processingRequest.setBytes(bytes);
         processingRequest.setState(ProcessState.CREATED.getState());
         processingRequest.setInvestigator(investigator);
-        processingRequest.setResources(resourcesString);
         save(processingRequest);
         return processingRequest;
     }
@@ -83,4 +83,5 @@ public class ProcessingRequestService {
         update(processingRequest);
         return processingRequest;
     }
+
 }

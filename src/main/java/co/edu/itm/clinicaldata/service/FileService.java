@@ -10,14 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import co.edu.itm.clinicaldata.dto.ResourcesWrapper;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.RandomUtilities;
-import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class FileService {
@@ -42,14 +40,13 @@ public class FileService {
      * @return
      * @throws ValidateException
      */
-    public String upload(MultipartFile file, Long investigatorId, ResourcesWrapper resources) throws ValidateException {
+    public String upload(MultipartFile file, Long investigatorId) throws ValidateException {
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         validateExtensionAllowed(fileExtension);
 
         Investigator investigator = investigatorService.validateAndfind(investigatorId);
 
         Language language = getLanguage(fileExtension);
-        boolean requiredResources = validateRequiredResources(resources, language.getName());
         byte[] bytes = getBytesFromFile(file);
         String identifier = RandomUtilities.randomIdentifier();
         String fileName = file.getOriginalFilename();
@@ -58,47 +55,12 @@ public class FileService {
         FileUtilities.createFile(bytes,
                 buildPath(basePath, file.getOriginalFilename()));
 
-        String resourcesString = getResourcesString(resources,
-                requiredResources);
-
         ProcessingRequest processingRequest = processingRequestService
                 .create(identifier, language.getName(), bytes,
-                        fileName, basePath, investigator, resourcesString);
+                        fileName, basePath, investigator);
 
         return String.format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
                         processingRequest.getIdentifier());
-    }
-
-    private String getResourcesString(ResourcesWrapper resources,
-            boolean requiredResources) {
-        String resourcesString = null;
-        if(requiredResources){
-            resourcesString = String.join(",", resources.getResources());
-        }
-        return resourcesString;
-    }
-
-    private boolean validateRequiredResources(ResourcesWrapper resources,
-            String languageFolder) throws ValidateException {
-        boolean requiredResources = resources != null && !Validations.field(resources.getResources());
-        if(requiredResources){
-            String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(languageFolder);
-            validateResourcesExistence(resources, resourceLanguageFolder);
-        }
-        return requiredResources;
-    }
-
-    private void validateResourcesExistence(ResourcesWrapper resources,
-            String resourceLanguageFolder) throws ValidateException {
-        for(String resource : resources.getResources()){
-            boolean exists = FileUtilities.existsFile(resourceLanguageFolder + resource);
-            if (!exists) {
-                throw new ValidateException(
-                        String.format(
-                                "El recurso <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
-                                resource));
-            }
-        }
     }
 
     private String buildPath(String basePath, String fileName){

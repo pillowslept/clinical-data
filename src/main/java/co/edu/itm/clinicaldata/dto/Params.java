@@ -1,8 +1,15 @@
 package co.edu.itm.clinicaldata.dto;
 
-public class Params {
+import java.io.Serializable;
+import java.util.List;
+
+public class Params implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String identifier;
+    private List<Resource> resources;
+
     private Long investigatorId;
     private String investigatorName;
     private String investigatorEmail;
@@ -37,5 +44,13 @@ public class Params {
 
     public void setInvestigatorEmail(String investigatorEmail) {
         this.investigatorEmail = investigatorEmail;
+    }
+
+    public List<Resource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
     }
 }

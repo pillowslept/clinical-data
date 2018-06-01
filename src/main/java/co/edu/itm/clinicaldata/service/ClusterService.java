@@ -1,7 +1,5 @@
 package co.edu.itm.clinicaldata.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -14,6 +12,7 @@ import co.edu.itm.clinicaldata.dto.Output;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
+import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.util.Commands;
@@ -29,7 +28,6 @@ public class ClusterService {
     private static final String KEY_TO_REPLACE = "%COMMAND%";
     private static final String SH_FILE_NAME = "qsub.sh";
     private static final String SPACE = " ";
-    private static final String COMMA = ",";
 
     private static final Logger LOGGER = Logger.getLogger(ClusterService.class.getName());
 
@@ -42,12 +40,12 @@ public class ClusterService {
      * @param processingRequest
      */
     @Async
-    public void sendProcessToCluster(ProcessingRequest processingRequest) {
+    public void sendProcessToCluster(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
         sleep();
 
         Output output = new Output();
         if (processingRequest.getLanguage().equals(Language.JAVA.getName())) {
-            output = javaProcess(processingRequest);
+            output = javaProcess(processingRequest, listProcessResource);
         } else if (processingRequest.getLanguage().equals(Language.PYTHON.getName())) {
             output = pythonProcess(processingRequest);
         } else if (processingRequest.getLanguage().equals(Language.R.getName())) {
@@ -123,7 +121,7 @@ public class ClusterService {
      * @param processingRequest
      * @return
      */
-    private Output javaProcess(ProcessingRequest processingRequest){
+    private Output javaProcess(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource){
         Output output = new Output();
         String result = "";
         ProcessState processState = null;
@@ -132,9 +130,9 @@ public class ClusterService {
         String compileBaseCommand = null;
         String executeBaseCommand = Commands.JAVA_EXECUTE_COMMAND;
 
-        if (!Validations.field(processingRequest.getResources())) {
+        if (!Validations.field(listProcessResource)) {
             compileBaseCommand = Commands.JAVA_COMPILE_COMMAND_RESOURCES;
-            String resourcesPath = buildResourcesPath(processingRequest);
+            String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
             compileCommand = resourcesPath
                     + SPACE
                     + buildFilePath(processingRequest.getBasePath(),
@@ -203,13 +201,12 @@ public class ClusterService {
      * @param processingRequest
      * @return
      */
-    private String buildResourcesPath(ProcessingRequest processingRequest) {
+    private String buildResourcesPath(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
         String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
         StringBuilder resourcesPath = new StringBuilder();
-        List<String> resources = new ArrayList<>(Arrays.asList(processingRequest.getResources().split(COMMA)));
-        for (String resource : resources) {
+        for (ProcessResource processResource : listProcessResource) {
             resourcesPath.append(resourceLanguageFolder);
-            resourcesPath.append(resource);
+            resourcesPath.append(processResource.getName());
         }
         return resourcesPath.toString();
     }

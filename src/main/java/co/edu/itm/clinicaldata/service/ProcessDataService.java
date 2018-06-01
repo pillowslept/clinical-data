@@ -1,16 +1,22 @@
 package co.edu.itm.clinicaldata.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.edu.itm.clinicaldata.dto.Params;
+import co.edu.itm.clinicaldata.dto.Resource;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.Investigator;
+import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.util.DateUtilities;
 import co.edu.itm.clinicaldata.util.FileUtilities;
+import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 public class ProcessDataService {
@@ -26,6 +32,9 @@ public class ProcessDataService {
 
     @Autowired
     ClusterService clusterService;
+
+    @Autowired
+    ProcessResourceService processResourceService;
 
     /**
      * Se encarga de obtener el estado de una solicitud por medio de su identificador
@@ -75,14 +84,54 @@ public class ProcessDataService {
         validateCreatedProcess(processingRequest);
         Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
         clusterService.validateLanguageTemplate(processingRequest);
+
+        boolean requiredResources = validateRequiredResources(params.getResources(), processingRequest.getLanguage());
+
         processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
 
+        List<ProcessResource> listProcessResource = createResources(params.getResources(), requiredResources, processingRequest);
+
         //Se llama proceso del cluster en background
-        clusterService.sendProcessToCluster(processingRequest);
+        clusterService.sendProcessToCluster(processingRequest, listProcessResource);
 
         return String.format("Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.",
                         investigator.getName(),
                         processingRequest.getIdentifier());
+    }
+
+    private List<ProcessResource> createResources(List<Resource> resources, boolean requiredResources,
+            ProcessingRequest processingRequest) throws ValidateException {
+        List<ProcessResource> listProcessResource = new ArrayList<>();
+        if(requiredResources){
+            for(Resource resource : resources){
+                listProcessResource.add(processResourceService.create(resource, processingRequest));
+            }
+        }
+        return listProcessResource;
+    }
+
+    private boolean validateRequiredResources(List<Resource> resources, String languageFolder) throws ValidateException {
+        boolean requiredResources = !Validations.field(resources);
+        if(requiredResources){
+            String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(languageFolder);
+            validateResourcesExistence(resources, resourceLanguageFolder);
+        }
+        return requiredResources;
+    }
+
+    private void validateResourcesExistence(List<Resource> resources, String resourceLanguageFolder) throws ValidateException {
+        for(Resource resource : resources){
+            if(Validations.field(resource.getName())){
+                throw new ValidateException("El campo <name> de los recursos debe ser válido");
+            }
+            boolean exists = FileUtilities.existsFile(resourceLanguageFolder + resource.getName());
+            if (!exists) {
+                throw new ValidateException(
+                        String.format(
+                                "El recurso <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
+                                resource.getName()));
+            }
+        }
     }
 
     private void validateCreatedProcess(ProcessingRequest processingRequest) throws ValidateException {

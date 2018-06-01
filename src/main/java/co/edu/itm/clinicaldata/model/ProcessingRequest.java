@@ -56,13 +56,9 @@ public class ProcessingRequest implements Serializable {
     @Column(name = "STATE", nullable = false)
     private String state;
 
-    @Size(max = 400)
+    @Size(max = 4000)
     @Column(name = "RESULT", nullable = true)
     private String result;
-
-    @Size(max = 400)
-    @Column(name = "RESOURCES", nullable = true)
-    private String resources;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INVESTIGATOR_ID")
@@ -154,14 +150,6 @@ public class ProcessingRequest implements Serializable {
 
     public void setResult(String result) {
         this.result = result;
-    }
-
-    public String getResources() {
-        return resources;
-    }
-
-    public void setResources(String resources) {
-        this.resources = resources;
     }
 
 }
