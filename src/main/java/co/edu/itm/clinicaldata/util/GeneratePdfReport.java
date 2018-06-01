@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import co.edu.itm.clinicaldata.model.Investigator;
+import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 
 import com.itextpdf.text.BadElementException;
@@ -35,7 +36,9 @@ public class GeneratePdfReport {
 
     private static final Logger LOGGER = Logger.getLogger(GeneratePdfReport.class.getName());
 
-    public static ByteArrayInputStream processRequest(Investigator investigator, List<ProcessingRequest> listProcessingRequest) {
+    public static ByteArrayInputStream processRequest(Investigator investigator,
+            List<ProcessingRequest> listProcessingRequest,
+            List<ProcessResource> listProcessResource) {
         Document document = new Document();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
@@ -56,11 +59,8 @@ public class GeneratePdfReport {
                 table.addCell(bodyCell(request.getFileName()));
                 table.addCell(bodyCell(request.getState()));
 
-                if(Validations.field(request.getResult())){
-                    PdfPCell cell = bodyCell("Resultado: " + request.getResult());
-                    cell.setColspan(5);
-                    table.addCell(cell);
-                }
+                addResources(table, listProcessResource);
+                addResult(table, request);
             }
 
             PdfWriter.getInstance(document, out);
@@ -75,6 +75,39 @@ public class GeneratePdfReport {
                             investigator.getId()), ex);
         }
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    private static void addResult(PdfPTable table, ProcessingRequest request) {
+        if(!Validations.field(request.getResult())){
+            PdfPCell cell = bodyCell("Resultado: " + request.getResult());
+            cell.setColspan(5);
+            table.addCell(cell);
+        }
+    }
+
+    private static void addResources(PdfPTable table, List<ProcessResource> listProcessResource) {
+        if(!Validations.field(listProcessResource)){
+            PdfPCell cell = headCell("Recursos adicionales");
+            cell.setColspan(5);
+            table.addCell(cell);
+
+            cell = headCell("Nombre");
+            cell.setColspan(3);
+            table.addCell(cell);
+
+            cell = headCell("Versión");
+            cell.setColspan(2);
+            table.addCell(cell);
+
+            for (ProcessResource processResource : listProcessResource) {
+                PdfPCell bodyCell = bodyCell(processResource.getName());
+                bodyCell.setColspan(3);
+                table.addCell(bodyCell);
+                bodyCell = bodyCell(processResource.getVersion());
+                bodyCell.setColspan(2);
+                table.addCell(bodyCell);
+            }
+        }
     }
 
     private static PdfPCell getImageHeaderCell() {
