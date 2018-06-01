@@ -22,14 +22,15 @@ public class Mapper extends ResponseEntityExceptionHandler {
     private Environment environment;
 
     @ExceptionHandler(ValidateException.class)
-    protected ResponseEntity<Object> handleEntityNotFound(ValidateException ex) {
+    protected ResponseEntity<Object> handleValidateException(
+            ValidateException ex) {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
         LOGGER.error(ex.getMessage(), ex);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<Object> handleError1(MultipartException ex) {
+    public ResponseEntity<Object> handleMultipartException(MultipartException ex) {
         String maxFileSize = environment
                 .getRequiredProperty("spring.http.multipart.max-file-size");
         ApiError apiError = new ApiError(
