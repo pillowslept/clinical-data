@@ -87,26 +87,24 @@ public class GeneratePdfReport {
 
     private static void addResources(PdfPTable table, List<ProcessResource> listProcessResource) {
         if(!Validations.field(listProcessResource)){
-            PdfPCell cell = headCell("Recursos adicionales");
+            StringBuilder sb = new StringBuilder();
+            String separator = "";
+            for (ProcessResource processResource : listProcessResource) {
+                sb.append(separator);
+                sb.append(processResource.getName());
+                if(!Validations.field(processResource.getVersion())){
+                    sb.append(" ");
+                    sb.append("V:");
+                    sb.append(processResource.getVersion());
+                    sb.append(" ");
+                    separator = "| ";
+                }
+            }
+
+            PdfPCell cell = bodyCell("Recursos adicionales: " + sb.toString());
+            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
             cell.setColspan(5);
             table.addCell(cell);
-
-            cell = headCell("Nombre");
-            cell.setColspan(3);
-            table.addCell(cell);
-
-            cell = headCell("Versión");
-            cell.setColspan(2);
-            table.addCell(cell);
-
-            for (ProcessResource processResource : listProcessResource) {
-                PdfPCell bodyCell = bodyCell(processResource.getName());
-                bodyCell.setColspan(3);
-                table.addCell(bodyCell);
-                bodyCell = bodyCell(processResource.getVersion());
-                bodyCell.setColspan(2);
-                table.addCell(bodyCell);
-            }
         }
     }
 
