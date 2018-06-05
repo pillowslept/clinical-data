@@ -1,7 +1,5 @@
 package co.edu.itm.clinicaldata.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +14,13 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Service
 @Transactional
 public class InvestigatorService {
+
+    private static final String INVESTIGATOR_NOT_FOUND = "El investigador con identificador <%d> no existe en la base de datos";
+    private static final String INVESTIGATOR_ACTIVATED = "El investigador con identificador <%d> fue activado con éxito";
+    private static final String INVESTIGATOR_INACTIVATED = "El investigador con identificador <%d> fue inactivado con éxito";
+    private static final String INVESTIGATOR_EMAIL_NOT_VALID = "El campo <investigatorEmail> no es válido";
+    private static final String INVESTIGATOR_NAME_NOT_VALID = "El campo <investigatorName> no es válido";
+    private static final String INVESTIGATOR_ID_NOT_VALID = "El campo <investigatorId> no es válido";
 
     @Autowired
     private InvestigatorRepository investigatorRepository;
@@ -36,10 +41,10 @@ public class InvestigatorService {
 
     private void validateCreate(Params params) throws ValidateException {
         if(Validations.field(params.getInvestigatorName())){
-            throw new ValidateException("El campo <investigatorName> no es válido");
+            throw new ValidateException(INVESTIGATOR_NAME_NOT_VALID);
         }
         if(Validations.field(params.getInvestigatorEmail())){
-            throw new ValidateException("El campo <investigatorEmail> no es válido");
+            throw new ValidateException(INVESTIGATOR_EMAIL_NOT_VALID);
         }
     }
 
@@ -47,40 +52,33 @@ public class InvestigatorService {
         Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.INACTIVE.getState());
         update(investigator);
-        return String.format("El investigador con identificador <%d> fue inactivado con éxito",
-                        params.getInvestigatorId());
+        return String.format(INVESTIGATOR_INACTIVATED, params.getInvestigatorId());
     }
 
     public String activate(Params params) throws ValidateException {
         Investigator investigator = validateAndfind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         update(investigator);
-        return String.format("El investigador con identificador <%d> fue activado con éxito",
-                        params.getInvestigatorId());
+        return String.format(INVESTIGATOR_ACTIVATED, params.getInvestigatorId());
     }
 
     public Investigator validateAndfind(Long investigatorId) throws ValidateException {
         validateInvestigatorId(investigatorId);
         Investigator investigator = findById(investigatorId);
         if(investigator == null){
-            throw new ValidateException(String.format("El investigador con identificador <%d> no existe en la base de datos",
-                    investigatorId));
+            throw new ValidateException(String.format(INVESTIGATOR_NOT_FOUND, investigatorId));
         }
         return investigator;
     }
 
     private void validateInvestigatorId(Long investigatorId) throws ValidateException {
         if(Validations.field(investigatorId)){
-            throw new ValidateException("El campo <investigatorId> no es válido");
+            throw new ValidateException(INVESTIGATOR_ID_NOT_VALID);
         }
     }
 
     public void update(Investigator investigator) {
         investigatorRepository.save(investigator);
-    }
-
-    public List<Investigator> findAll() {
-        return investigatorRepository.findAll();
     }
 
 }

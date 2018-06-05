@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.service.ReportService;
-import co.edu.itm.clinicaldata.util.FileUtilities;
+import co.edu.itm.clinicaldata.component.FileUtilities;
 
 @RestController
 @RequestMapping("/api/report")
@@ -22,6 +22,9 @@ public class ReportController {
 
     @Autowired
     ReportService reportService;
+
+    @Autowired
+    FileUtilities fileUtilities;
 
     @RequestMapping(value = "/request/{identifier}", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<InputStreamResource> byRequest(
@@ -43,7 +46,7 @@ public class ReportController {
         headers.add(
                 HttpHeaders.CONTENT_DISPOSITION,
                 "inline; filename="
-                        + FileUtilities.createFileName(name,
+                        + fileUtilities.createFileName(name,
                                 FileUtilities.PDF_FILE_EXTENSION));
 
         return ResponseEntity.ok().headers(headers)

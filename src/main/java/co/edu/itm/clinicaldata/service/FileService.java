@@ -5,29 +5,35 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.edu.itm.clinicaldata.component.FileUtilities;
+import co.edu.itm.clinicaldata.component.RandomUtilities;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
-import co.edu.itm.clinicaldata.util.FileUtilities;
-import co.edu.itm.clinicaldata.util.RandomUtilities;
 
 @Service
 public class FileService {
 
-    private static final Logger LOGGER = Logger.getLogger(FileService.class
-            .getName());
+    private static final String ERROR_OBTAINING_BYTES_FROM_FILE = "Ocurrió un error obteniendo el archivo a procesar";
+    private static final String UPLOAD_SUCCESSFUL = "El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.";
+    private static final String INVALID_FILE_EXTENSION = "La extensión del archivo a procesar no es soportada por la aplicación. Extensiones permitidas: %s";
 
     @Autowired
     ProcessingRequestService processingRequestService;
 
     @Autowired
     InvestigatorService investigatorService;
+
+    @Autowired
+    FileUtilities fileUtilities;
+
+    @Autowired
+    RandomUtilities randomUtilities;
 
     private final List<String> languagesAllowed = Arrays.asList(
             Language.JAVA.getFileExtension(), Language.PYTHON.getFileExtension(),
@@ -41,26 +47,20 @@ public class FileService {
      * @throws ValidateException
      */
     public String upload(MultipartFile file, Long investigatorId) throws ValidateException {
-        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-        validateExtensionAllowed(fileExtension);
-
+        String fileName = file.getOriginalFilename(); 
+        Language language = getLanguage(fileName);
         Investigator investigator = investigatorService.validateAndfind(investigatorId);
-
-        Language language = getLanguage(fileExtension);
         byte[] bytes = getBytesFromFile(file);
-        String identifier = RandomUtilities.randomIdentifier();
-        String fileName = file.getOriginalFilename();
-        String basePath = FileUtilities.buildBasePath(language.getName(), identifier);
 
-        FileUtilities.createFile(bytes,
-                buildPath(basePath, file.getOriginalFilename()));
+        String identifier = randomUtilities.generateIdentifier();
+        String basePath = fileUtilities.buildBasePath(language.getName(), identifier);
+        fileUtilities.createFile(bytes, buildPath(basePath, file.getOriginalFilename()));
 
         ProcessingRequest processingRequest = processingRequestService
                 .create(identifier, language.getName(), bytes,
                         fileName, basePath, investigator);
 
-        return String.format("El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.",
-                        processingRequest.getIdentifier());
+        return String.format(UPLOAD_SUCCESSFUL, processingRequest.getIdentifier());
     }
 
     private String buildPath(String basePath, String fileName){
@@ -73,35 +73,26 @@ public class FileService {
         try {
             bytes = file.getBytes();
         } catch (IOException e) {
-            throw new ValidateException(
-                    "Ocurrió un error obteniendo el archivo a procesar");
+            throw new ValidateException(ERROR_OBTAINING_BYTES_FROM_FILE);
         }
         return bytes;
     }
 
-    private void validateExtensionAllowed(String extension)
-            throws ValidateException {
-        boolean validLanguage = languagesAllowed.stream().anyMatch(
-                language -> language.equalsIgnoreCase(extension));
-        if (!validLanguage) {
-            throw new ValidateException(
-                    String.format(
-                            "La extensión del archivo a procesar no es soportada por la aplicación. Extensiones permitidas: %s",
-                            languagesAllowed.toString()));
-        }
-    }
-
-    private Language getLanguage(String languageToProcess) {
+    private Language getLanguage(String fileOriginalName) throws ValidateException {
+        String fileExtension = FilenameUtils.getExtension(fileOriginalName);
         Language language = null;
-        if (languageToProcess.equalsIgnoreCase(Language.JAVA.getFileExtension())) {
+        if (fileExtension.equalsIgnoreCase(Language.JAVA.getFileExtension())) {
             language = Language.JAVA;
-        } else if (languageToProcess
-                .equalsIgnoreCase(Language.PYTHON.getFileExtension())) {
+        } else if (fileExtension.equalsIgnoreCase(Language.PYTHON
+                .getFileExtension())) {
             language = Language.PYTHON;
-        } else if (languageToProcess.equalsIgnoreCase(Language.R.getFileExtension())) {
+        } else if (fileExtension
+                .equalsIgnoreCase(Language.R.getFileExtension())) {
             language = Language.R;
+        } else {
+            throw new ValidateException(String.format(INVALID_FILE_EXTENSION,
+                    languagesAllowed.toString()));
         }
-        LOGGER.info("El lenguaje a procesar es " + language);
         return language;
     }
 

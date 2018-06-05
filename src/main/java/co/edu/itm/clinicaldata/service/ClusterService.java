@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import co.edu.itm.clinicaldata.component.Commands;
 import co.edu.itm.clinicaldata.dto.Output;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
@@ -15,8 +16,7 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.queue.ProcessQueue;
-import co.edu.itm.clinicaldata.util.Commands;
-import co.edu.itm.clinicaldata.util.FileUtilities;
+import co.edu.itm.clinicaldata.component.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
@@ -33,6 +33,12 @@ public class ClusterService {
 
     @Autowired
     ProcessingRequestService processingRequestService;
+
+    @Autowired
+    Commands commands;
+
+    @Autowired
+    FileUtilities fileUtilities;
 
     /**
      * Crea los archivos necesarios para enviar a través del comando qsub una solicitud
@@ -54,6 +60,8 @@ public class ClusterService {
             //Lenguage no soportado
         }
 
+        executeQsub(processingRequest, output);
+
         updateProcessingRequest(processingRequest, output);
         ProcessQueue.getInstance().add(processingRequest.getIdentifier());
     }
@@ -68,8 +76,6 @@ public class ClusterService {
 
         String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
         createBourneShellScript(processingRequest, command);
-        //Execute qsub command
-        //executeQsub(processingRequest, output);
 
         output.setState(ProcessState.PROCESSING.getState());
         return output;
@@ -85,8 +91,6 @@ public class ClusterService {
 
         String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
         createBourneShellScript(processingRequest, command);
-        //Execute qsub command
-        //executeQsub(processingRequest, output);
 
         output.setState(ProcessState.PROCESSING.getState());
         return output;
@@ -100,7 +104,7 @@ public class ClusterService {
     private void executeQsub(ProcessingRequest processingRequest, Output output) {
         String result = "";
         ProcessState processState = null;
-        Output executeOutput = Commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
+        Output executeOutput = commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
         if (!Validations.field(executeOutput.getError())) {
             result = executeOutput.getError();
             processState = ProcessState.FINISHED_WITH_ERRORS;
@@ -130,6 +134,7 @@ public class ClusterService {
         String compileBaseCommand = null;
         String executeBaseCommand = Commands.JAVA_EXECUTE_COMMAND;
 
+        //Processing with aditional resources
         if (!Validations.field(listProcessResource)) {
             compileBaseCommand = Commands.JAVA_COMPILE_COMMAND_RESOURCES;
             String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
@@ -154,7 +159,7 @@ public class ClusterService {
                     processingRequest.getFileName());
         }
 
-        Output compileOutput = Commands.executeCommand(compileBaseCommand, compileCommand);
+        Output compileOutput = commands.executeCommand(compileBaseCommand, compileCommand);
 
         if (!Validations.field(compileOutput.getError())) {
             result = compileOutput.getError();
@@ -166,7 +171,7 @@ public class ClusterService {
             createBourneShellScript(processingRequest, executeBaseCommand + executeCommand);
 
             processState = ProcessState.PROCESSING;
-            Output executeOutput = Commands.executeCommand(executeBaseCommand, executeCommand);
+            Output executeOutput = commands.executeCommand(executeBaseCommand, executeCommand);
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
                 processState = ProcessState.FINISHED_WITH_ERRORS;
@@ -190,10 +195,14 @@ public class ClusterService {
      * @param command
      */
     private void createBourneShellScript(ProcessingRequest processingRequest, String command) {
-        String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
-        String readedContent = FileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
+        String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
+        String readedContent = fileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
         readedContent = readedContent.replace(KEY_TO_REPLACE, command);
-        FileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
+        try {
+            fileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
+        } catch (ValidateException e) {
+            LOGGER.info("Ocurrió un error creando el archivo .sh en el directorio");
+        }
     }
 
     /**
@@ -202,7 +211,7 @@ public class ClusterService {
      * @return
      */
     private String buildResourcesPath(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
-        String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
+        String resourceLanguageFolder = fileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
         StringBuilder resourcesPath = new StringBuilder();
         for (ProcessResource processResource : listProcessResource) {
             resourcesPath.append(resourceLanguageFolder);
@@ -245,16 +254,16 @@ public class ClusterService {
         if(!processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
             hasEndProcess = true;
         }else{
-            boolean exists = FileUtilities.existsFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
+            boolean exists = fileUtilities.existsFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
             if(exists){
                 hasEndProcess = true;
-                result = FileUtilities.readFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
+                result = fileUtilities.readFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
                 processState = ProcessState.FINISHED_OK;
             }else{
-                exists = FileUtilities.existsFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
+                exists = fileUtilities.existsFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
                 if(exists){
                     hasEndProcess = true;
-                    result = FileUtilities.readFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
+                    result = fileUtilities.readFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
                     processState = ProcessState.FINISHED_WITH_ERRORS;
                 }
             }
@@ -276,8 +285,8 @@ public class ClusterService {
      * @throws ValidateException
      */
     public void validateLanguageTemplate(ProcessingRequest processingRequest) throws ValidateException{
-        String templateLanguageFolder = FileUtilities.templateLanguageFolder(processingRequest.getLanguage());
-        boolean exists = FileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
+        String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
+        boolean exists = fileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
         if (!exists) {
             throw new ValidateException(
                     String.format(

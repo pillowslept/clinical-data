@@ -18,12 +18,11 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Transactional
 public class ProcessingRequestService {
 
+    private static final String IDENTIFIER_NOT_VALID = "El <identifier> del proceso debe ser válido";
+    private static final String PROCESSING_REQUEST_NOT_FOUND = "La solicitud con identificador <%s> no existe en la base de datos";
+
     @Autowired
     private ProcessingRequestRepository processingRequestRepository;
-
-    public ProcessingRequest findById(Long id) {
-        return processingRequestRepository.findOne(id);
-    }
 
     public ProcessingRequest findByIdentifier(String identifier) {
         return processingRequestRepository.findByIdentifier(identifier);
@@ -37,10 +36,6 @@ public class ProcessingRequestService {
         save(processingRequest);
     }
 
-    public List<ProcessingRequest> findAll() {
-        return processingRequestRepository.findAll();
-    }
-
     public List<ProcessingRequest> findByInvestigatorId(Long investigatorId) {
         return processingRequestRepository.findByInvestigatorId(investigatorId);
     }
@@ -49,15 +44,14 @@ public class ProcessingRequestService {
         validateProcessIdentifier(processIdentifier);
         ProcessingRequest processingRequest = findByIdentifier(processIdentifier);
         if(processingRequest == null){
-            throw new ValidateException(String.format("La solicitud con identificador <%s> no existe en la base de datos", processIdentifier));
+            throw new ValidateException(String.format(PROCESSING_REQUEST_NOT_FOUND, processIdentifier));
         }
         return processingRequest;
     }
 
     private void validateProcessIdentifier(String processIdentifier) throws ValidateException {
         if (Validations.field(processIdentifier)) {
-            throw new ValidateException(
-                    "El <identifier> del proceso debe ser válido");
+            throw new ValidateException(IDENTIFIER_NOT_VALID);
         }
     }
 

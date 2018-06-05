@@ -7,20 +7,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.itm.clinicaldata.component.FileUtilities;
 import co.edu.itm.clinicaldata.dto.Resource;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.repository.ProcessResourceRepository;
-import co.edu.itm.clinicaldata.util.FileUtilities;
 import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
 @Transactional
 public class ProcessResourceService {
 
+    private static final String RESOURCE_NOT_CONFIGURED = "El recurso <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador";
+    private static final String NAME_NOT_VALID = "El campo <name> del recurso no es válido";
+
     @Autowired
     private ProcessResourceRepository processResourceRepository;
+
+    @Autowired
+    FileUtilities fileUtilities;
 
     public ProcessResource create(Resource resource, ProcessingRequest processingRequest) throws ValidateException {
         validateCreate(resource);
@@ -34,7 +40,7 @@ public class ProcessResourceService {
 
     private void validateCreate(Resource resource) throws ValidateException {
         if(Validations.field(resource.getName())){
-            throw new ValidateException("El campo <name> del recurso no es válido");
+            throw new ValidateException(NAME_NOT_VALID);
         }
     }
 
@@ -45,7 +51,7 @@ public class ProcessResourceService {
     public List<ProcessResource> validateRequiredResources(List<Resource> resources, ProcessingRequest processingRequest) throws ValidateException {
         List<ProcessResource> listProcessResource = new ArrayList<>();
         if(!Validations.field(resources)){
-            String resourceLanguageFolder = FileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
+            String resourceLanguageFolder = fileUtilities.resourceLanguageFolder(processingRequest.getLanguage());
             listProcessResource = validateResourcesExistence(resources, resourceLanguageFolder, processingRequest);
         }
         return listProcessResource;
@@ -56,14 +62,12 @@ public class ProcessResourceService {
             ProcessingRequest processingRequest) throws ValidateException {
         for (Resource resource : resources) {
             if (Validations.field(resource.getName())) {
-                throw new ValidateException("El campo <name> de los recursos debe ser válido");
+                throw new ValidateException(NAME_NOT_VALID);
             }
-            boolean exists = FileUtilities.existsFile(resourceLanguageFolder + resource.getName());
+            boolean exists = fileUtilities.existsFile(resourceLanguageFolder
+                    + resource.getName());
             if (!exists) {
-                throw new ValidateException(
-                        String.format(
-                                "El recurso <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
-                                resource.getName()));
+                throw new ValidateException(String.format(RESOURCE_NOT_CONFIGURED, resource.getName()));
             }
         }
         return createResources(resources, processingRequest);
