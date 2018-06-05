@@ -27,6 +27,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class GeneratePdfReport {
 
+    private static final String SPACE = " ";
     private static final int TABLE_100_PERCENT = 100;
     private static final String ITM_LOGO = "http://clusteri.itm.edu.co/wiki/img/tiki/Tiki_WCG.png";
     private static final int FONT_SIZE_BODY = 8;
@@ -93,11 +94,11 @@ public class GeneratePdfReport {
                 sb.append(separator);
                 sb.append(processResource.getName());
                 if(!Validations.field(processResource.getVersion())){
-                    sb.append(" ");
+                    sb.append(SPACE);
                     sb.append("V:");
                     sb.append(processResource.getVersion());
-                    sb.append(" ");
-                    separator = "| ";
+                    sb.append(SPACE);
+                    separator = ", ";
                 }
             }
 
