@@ -22,6 +22,8 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Service
 public class ClusterService {
 
+    private static final String LANGUAGE_NOT_SUPPORTED = "El lenguaje enviado a ejecutar no se encuentra configurado";
+    private static final String SYSTEM_NOT_VALID = "Sistema no válido para ejecución de archivos con comandos qsub";
     private static final String TEMPLATE_FILE_NOT_EXISTS = "El template <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador";
     private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo .sh en el directorio";
     private static final String ERR_OUTPUT_FILE = "prueba.err";
@@ -49,76 +51,91 @@ public class ClusterService {
      */
     @Async
     public void sendProcessToCluster(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
-        sleep();
 
         Output output = new Output();
         if (processingRequest.getLanguage().equals(Language.JAVA.getName())) {
             output = javaProcess(processingRequest, listProcessResource);
         } else if (processingRequest.getLanguage().equals(Language.PYTHON.getName())) {
-            output = pythonProcess(processingRequest);
+            String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+            output = genericProcess(command, processingRequest);
         } else if (processingRequest.getLanguage().equals(Language.R.getName())) {
-            output = rProcess(processingRequest);
+            String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+            output = genericProcess(command, processingRequest);
         }else{
-            //Lenguage no soportado
+            output.setResult(LANGUAGE_NOT_SUPPORTED);
+            output.setState(ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
         }
 
-        executeQsub(processingRequest, output);
-
         updateProcessingRequest(processingRequest, output);
-        ProcessQueue.getInstance().add(processingRequest.getIdentifier());
     }
 
     /**
-     * Creación de archivos requeridos en procesamiento de archivo .py (Python)
+     * Creación de archivos requeridos en procesamiento de archivo .py (Python) o .r (R)
      * @param processingRequest
      * @return
      */
-    private Output pythonProcess(ProcessingRequest processingRequest) {
+    private Output genericProcess(String command, ProcessingRequest processingRequest) {
         Output output = new Output();
 
-        String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
-        createBourneShellScript(processingRequest, command);
+        boolean fileCreated = createBourneShellScript(processingRequest, command);
+        if(fileCreated){
+            output = executeQsub(processingRequest);
+        }else{
+            output.setResult(ERROR_CREATING_FILE);
+            output.setState(ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
+        }
 
-        output.setState(ProcessState.PROCESSING.getState());
-        return output;
-    }
-
-    /**
-     * Creación de archivos requeridos en procesamiento de archivo .r (R)
-     * @param processingRequest
-     * @return
-     */
-    private Output rProcess(ProcessingRequest processingRequest) {
-        Output output = new Output();
-
-        String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
-        createBourneShellScript(processingRequest, command);
-
-        output.setState(ProcessState.PROCESSING.getState());
         return output;
     }
 
     /**
      * Ejecuta el archivo previamente creado y lo encola a través del comando qsub en el servidor
+     * Si el sistema operativo no es linux termina la ejecución sin acciones
      * @param processingRequest
      * @param output
      */
-    private void executeQsub(ProcessingRequest processingRequest, Output output) {
-        String result = "";
-        ProcessState processState = null;
-        Output executeOutput = commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
-        if (!Validations.field(executeOutput.getError())) {
-            result = executeOutput.getError();
-            processState = ProcessState.FINISHED_WITH_ERRORS;
-            LOGGER.info("Archivo enviado al cluster presenta errores");
+    private Output executeQsub(ProcessingRequest processingRequest) {
+        Output output = new Output();
+        if(fileUtilities.isLinux()){
+            String result = "";
+            ProcessState processState = null;
+            Output executeOutput = commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
+            if (!Validations.field(executeOutput.getError())) {
+                result = executeOutput.getError();
+                processState = ProcessState.FINISHED_WITH_ERRORS;
+                LOGGER.info("Archivo enviado al cluster presenta errores");
+            } else {
+                result = executeOutput.getResult();
+                processState = ProcessState.FINISHED_OK;
+                LOGGER.info("Archivo enviado al cluster ok");
+            }
+            output.setResult(result);
+            output.setState(processState.getState());
+            ProcessQueue.getInstance().add(processingRequest.getIdentifier());
+        }else{
+            output.setResult(SYSTEM_NOT_VALID);
+            output.setState(ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
+        }
+        return output;
+    }
+
+    private Output compileJavaFile(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource){
+        String compileCommand = null;
+        String compileBaseCommand = null;
+        if (!Validations.field(listProcessResource)) {
+            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND_RESOURCES;
+            String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
+            compileCommand = resourcesPath
+                    + SPACE
+                    + buildFilePath(processingRequest.getBasePath(),
+                            processingRequest.getFileName());
         } else {
-            result = executeOutput.getResult();
-            processState = ProcessState.FINISHED_OK;
-            LOGGER.info("Archivo enviado al cluster ok");
+            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND;
+            compileCommand = buildFilePath(processingRequest.getBasePath(),
+                    processingRequest.getFileName());
         }
 
-        output.setResult(result);
-        output.setState(processState.getState());
+        return commands.executeCommand(compileBaseCommand, compileCommand);
     }
 
     /**
@@ -129,22 +146,28 @@ public class ClusterService {
      */
     private Output javaProcess(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource){
         Output output = new Output();
-        String result = "";
-        ProcessState processState = null;
-        String compileCommand = null;
+
+        Output compileOutput = compileJavaFile(processingRequest, listProcessResource);
+
+        if (!Validations.field(compileOutput.getError())) {
+            output.setResult(compileOutput.getError());
+            output.setState(ProcessState.FINISHED_WITH_ERRORS.getState());
+            LOGGER.info("Clase no compilada, presenta errores");
+        } else {
+            String command = generateExecuteJavaCommand(processingRequest, listProcessResource);
+            output = genericProcess(command, processingRequest);
+        }
+
+        output.setResult(output.getResult());
+        output.setState(output.getState());
+        return output;
+    }
+
+    private String generateExecuteJavaCommand(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
         String executeCommand = null;
-        String compileBaseCommand = null;
-        String executeBaseCommand = Commands.JAVA_EXECUTE_COMMAND;
 
-        //Processing with aditional resources
         if (!Validations.field(listProcessResource)) {
-            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND_RESOURCES;
             String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
-            compileCommand = resourcesPath
-                    + SPACE
-                    + buildFilePath(processingRequest.getBasePath(),
-                            processingRequest.getFileName());
-
             executeCommand = resourcesPath
                     + FileUtilities.PATH_SEPARATOR
                     + processingRequest.getBasePath()
@@ -152,42 +175,12 @@ public class ClusterService {
                     + FilenameUtils
                             .getBaseName(processingRequest.getFileName());
         } else {
-            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND;
-            compileCommand = buildFilePath(processingRequest.getBasePath(),
-                    processingRequest.getFileName());
-
             executeCommand = buildFilePathExecute(
                     processingRequest.getBasePath(),
                     processingRequest.getFileName());
         }
 
-        Output compileOutput = commands.executeCommand(compileBaseCommand, compileCommand);
-
-        if (!Validations.field(compileOutput.getError())) {
-            result = compileOutput.getError();
-            processState = ProcessState.FINISHED_WITH_ERRORS;
-            LOGGER.info("Clase no compilada, presenta errores");
-        } else {
-            LOGGER.info("Clase compilada con éxito");
-
-            createBourneShellScript(processingRequest, executeBaseCommand + executeCommand);
-
-            processState = ProcessState.PROCESSING;
-            Output executeOutput = commands.executeCommand(executeBaseCommand, executeCommand);
-            if (!Validations.field(executeOutput.getError())) {
-                result = executeOutput.getError();
-                processState = ProcessState.FINISHED_WITH_ERRORS;
-                LOGGER.info("Clase no ejecutada, presenta errores");
-            } else {
-                result = executeOutput.getResult();
-                processState = ProcessState.FINISHED_OK;
-                LOGGER.info("Clase ejecutada con éxito");
-            }
-        }
-
-        output.setResult(result);
-        output.setState(processState.getState());
-        return output;
+        return executeCommand;
     }
 
     /**
@@ -196,15 +189,18 @@ public class ClusterService {
      * @param processingRequest
      * @param command
      */
-    private void createBourneShellScript(ProcessingRequest processingRequest, String command) {
+    private boolean createBourneShellScript(ProcessingRequest processingRequest, String command) {
+        boolean fileCreated = false;
         String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
         String readedContent = fileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
         readedContent = readedContent.replace(KEY_TO_REPLACE, command);
         try {
             fileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
+            fileCreated = true;
         } catch (ValidateException e) {
             LOGGER.info(ERROR_CREATING_FILE);
         }
+        return fileCreated;
     }
 
     /**
@@ -293,16 +289,6 @@ public class ClusterService {
             throw new ValidateException(String.format(TEMPLATE_FILE_NOT_EXISTS,
                     TEMPLATE_NAME));
         }
-    }
-
-    private void sleep() {
-        LOGGER.info("Comenzando el proceso en el cluster, simulando espera de 20 segundos");
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        LOGGER.info("Cumplida la espera, se comienza a procesar la solicitud");
     }
 
 }
