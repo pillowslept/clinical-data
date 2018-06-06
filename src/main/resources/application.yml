@@ -9,6 +9,14 @@ spring:
     multipart:
       max-file-size: 2KB
       max-request-size: 2KB
+logging:
+  file: D:/dev_app.log
+  pattern:
+    file: "%d %-5level [%thread] %logger{0} : %msg%n"
+  level:
+    org.springframework.web: ERROR
+    guru.springframework.controllers: ERROR
+    org.hibernate: ERROR
 datasource:
   clinicaldata:
     url: jdbc:h2:~/test
@@ -29,6 +37,14 @@ spring:
     multipart:
       max-file-size: 2KB
       max-request-size: 2KB
+logging:
+  file: D:/dev_app.log
+  pattern:
+    file: "%d %-5level [%thread] %logger{0} : %msg%n"
+  level:
+    org.springframework.web: ERROR
+    guru.springframework.controllers: ERROR
+    org.hibernate: ERROR
 datasource:
   clinicaldata:
     url: jdbc:mysql://localhost:3306/websystique
