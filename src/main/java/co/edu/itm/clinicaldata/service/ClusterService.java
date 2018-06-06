@@ -22,6 +22,8 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Service
 public class ClusterService {
 
+    private static final String TEMPLATE_FILE_NOT_EXISTS = "El template <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador";
+    private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo .sh en el directorio";
     private static final String ERR_OUTPUT_FILE = "prueba.err";
     private static final String LOG_OUTPUT_FILE = "prueba.out";
     private static final String TEMPLATE_NAME = "template.txt";
@@ -201,7 +203,7 @@ public class ClusterService {
         try {
             fileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
         } catch (ValidateException e) {
-            LOGGER.info("Ocurrió un error creando el archivo .sh en el directorio");
+            LOGGER.info(ERROR_CREATING_FILE);
         }
     }
 
@@ -288,10 +290,8 @@ public class ClusterService {
         String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
         boolean exists = fileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
         if (!exists) {
-            throw new ValidateException(
-                    String.format(
-                            "El template <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador",
-                            TEMPLATE_NAME));
+            throw new ValidateException(String.format(TEMPLATE_FILE_NOT_EXISTS,
+                    TEMPLATE_NAME));
         }
     }
 

@@ -89,7 +89,7 @@ public class ProcessDataService {
 
         List<ProcessResource> listProcessResource = processResourceService.validateRequiredResources(params.getResources(), processingRequest);
 
-//        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
+        processingRequest = processingRequestService.updateState(processingRequest, ProcessState.PROCESSING);
 
         clusterService.sendProcessToCluster(processingRequest, listProcessResource);
 
