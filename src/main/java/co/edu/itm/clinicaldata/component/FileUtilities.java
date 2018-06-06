@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 @Component
 public class FileUtilities {
 
+    private static final String ERROR_READING_FILE = "El archivo de la ruta <%s> no pudo ser leído. ";
     private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo con la función a procesar";
     private static final String RESOURCES_FOLDER = "resources";
     private static final String TEMPLATE_FOLDER = "resources";
@@ -67,7 +69,7 @@ public class FileUtilities {
                 sb.append(LINE_SEPARATOR);
             }
         } catch (IOException ex) {
-            LOGGER.error(String.format("El archivo de la ruta <%s> no pudo ser leído. ", fileName), ex);
+            LOGGER.error(String.format(ERROR_READING_FILE, fileName), ex);
         }
         return sb.toString();
     }
@@ -81,4 +83,11 @@ public class FileUtilities {
         return file.exists() && !file.isDirectory();
     }
 
+    public boolean isLinux(){
+        boolean isLinux = false;
+        if(SystemUtils.IS_OS_LINUX){
+            isLinux = true;
+        }
+        return isLinux;
+    }
 }
