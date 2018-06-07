@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.itm.clinicaldata.dto.Params;
 import co.edu.itm.clinicaldata.exception.ValidateException;
-import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.service.InvestigatorService;
 
 @RestController
@@ -35,9 +34,9 @@ public class InvestigatorController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
-    public ResponseEntity<Investigator> create(@RequestBody Params params)
+    public ResponseEntity<String> create(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<Investigator>(
+        return new ResponseEntity<String>(
                 investigatorService.create(params), HttpStatus.OK);
     }
 

@@ -15,6 +15,7 @@ import co.edu.itm.clinicaldata.util.Validations;
 @Transactional
 public class InvestigatorService {
 
+    private static final String INVESTIGATOR_CREATED = "El investigador con nombre <%s> ha sido creado con éxito, el identificador generado es <%d>";
     private static final String INVESTIGATOR_NOT_FOUND = "El investigador con identificador <%d> no existe en la base de datos";
     private static final String INVESTIGATOR_ACTIVATED = "El investigador con identificador <%d> fue activado con éxito";
     private static final String INVESTIGATOR_INACTIVATED = "El investigador con identificador <%d> fue inactivado con éxito";
@@ -29,14 +30,14 @@ public class InvestigatorService {
         return investigatorRepository.findOne(id);
     }
 
-    public Investigator create(Params params) throws ValidateException {
+    public String create(Params params) throws ValidateException {
         validateCreate(params);
         Investigator investigator = new Investigator();
         investigator.setName(params.getInvestigatorName());
         investigator.setEmail(params.getInvestigatorEmail());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         investigatorRepository.save(investigator);
-        return investigator;
+        return String.format(INVESTIGATOR_CREATED, investigator.getName(), investigator.getId());
     }
 
     private void validateCreate(Params params) throws ValidateException {
