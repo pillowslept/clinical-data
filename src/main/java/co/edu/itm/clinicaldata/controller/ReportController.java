@@ -22,6 +22,9 @@ import co.edu.itm.clinicaldata.service.ReportService;
 @RequestMapping("/api/report")
 public class ReportController {
 
+    private static final String REPORT_NAME_BY_INVESTIGATOR = "reporte-investigador";
+    private static final String REPORT_NAME_BY_REQUEST = "reporte-solicitud";
+
     @Autowired
     ReportService reportService;
 
@@ -32,14 +35,14 @@ public class ReportController {
     public ResponseEntity<InputStreamResource> byRequest(
             @PathVariable("identifier") String identifier)
             throws ValidateException {
-        return buildResponse(identifier, reportService.byRequest(identifier));
+        return buildResponse(REPORT_NAME_BY_REQUEST, reportService.byRequest(identifier));
     }
 
     @RequestMapping(value = "/investigator/{investigatorId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<InputStreamResource> byInvestigator(
             @PathVariable("investigatorId") Long investigatorId)
             throws ValidateException {
-        return buildResponse(String.valueOf(investigatorId), reportService.byInvestigator(investigatorId));
+        return buildResponse(REPORT_NAME_BY_INVESTIGATOR, reportService.byInvestigator(investigatorId));
     }
 
     private ResponseEntity<InputStreamResource> buildResponse(String name,
