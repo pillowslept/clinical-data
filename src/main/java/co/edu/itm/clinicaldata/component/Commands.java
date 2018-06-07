@@ -13,17 +13,6 @@ import co.edu.itm.clinicaldata.dto.Output;
 @Component
 public class Commands {
 
-    //JAVA COMMANDS
-    public static final String JAVA_EXECUTE_COMMAND = "java -cp ";
-    public static final String JAVA_COMPILE_COMMAND = "javac ";
-    public static final String JAVA_COMPILE_COMMAND_RESOURCES = "javac -cp ";
-    //PYTHON COMMANDS
-    public static final String PYTHON_EXECUTE_COMMAND = "python ";
-    //R COMMANDS
-    public static final String R_EXECUTE_COMMAND = "R CMD BATCH ";
-    //QSUB COMMANDS
-    public static final String QSUB_COMMAND = "qsub ";
-
     private static final Logger LOGGER = Logger.getLogger(Commands.class.getName());
 
     public Output executeCommand(String baseCommand, String pathFile){

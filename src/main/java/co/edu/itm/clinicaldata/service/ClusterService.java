@@ -17,6 +17,7 @@ import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.queue.ProcessQueue;
 import co.edu.itm.clinicaldata.component.FileUtilities;
+import co.edu.itm.clinicaldata.util.Constants;
 import co.edu.itm.clinicaldata.util.Validations;
 
 @Service
@@ -51,20 +52,21 @@ public class ClusterService {
      */
     @Async
     public void sendProcessToCluster(ProcessingRequest processingRequest, List<ProcessResource> listProcessResource) {
-
+        LOGGER.info(String.format("Iniciando proceso de envío a cluster, el identificador de la solicitud es <%s>", processingRequest.getIdentifier()));
         Output output = new Output();
         if (processingRequest.getLanguage().equals(Language.JAVA.getName())) {
             output = javaProcess(processingRequest, listProcessResource);
         } else if (processingRequest.getLanguage().equals(Language.PYTHON.getName())) {
-            String command = Commands.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+            String command = Constants.PYTHON_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
             output = genericProcess(command, processingRequest);
         } else if (processingRequest.getLanguage().equals(Language.R.getName())) {
-            String command = Commands.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
+            String command = Constants.R_EXECUTE_COMMAND + buildFilePath(processingRequest.getBasePath(), processingRequest.getFileName());
             output = genericProcess(command, processingRequest);
         }else{
             output.setResult(LANGUAGE_NOT_SUPPORTED);
             output.setState(ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
         }
+        LOGGER.info(String.format("Finalizado el proceso de envío a cluster, el estado de la solicitud es <%s>", output.getState()));
 
         updateProcessingRequest(processingRequest, output);
     }
@@ -99,7 +101,7 @@ public class ClusterService {
         if(fileUtilities.isLinux()){
             String result = "";
             ProcessState processState = null;
-            Output executeOutput = commands.executeCommand(Commands.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
+            Output executeOutput = commands.executeCommand(Constants.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
                 processState = ProcessState.FINISHED_WITH_ERRORS;
@@ -123,14 +125,14 @@ public class ClusterService {
         String compileCommand = null;
         String compileBaseCommand = null;
         if (!Validations.field(listProcessResource)) {
-            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND_RESOURCES;
+            compileBaseCommand = Constants.JAVA_COMPILE_COMMAND_RESOURCES;
             String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
             compileCommand = resourcesPath
                     + SPACE
                     + buildFilePath(processingRequest.getBasePath(),
                             processingRequest.getFileName());
         } else {
-            compileBaseCommand = Commands.JAVA_COMPILE_COMMAND;
+            compileBaseCommand = Constants.JAVA_COMPILE_COMMAND;
             compileCommand = buildFilePath(processingRequest.getBasePath(),
                     processingRequest.getFileName());
         }
@@ -154,7 +156,7 @@ public class ClusterService {
             output.setState(ProcessState.FINISHED_WITH_ERRORS.getState());
             LOGGER.info("Clase no compilada, presenta errores");
         } else {
-            String command = generateExecuteJavaCommand(processingRequest, listProcessResource);
+            String command = Constants.JAVA_EXECUTE_COMMAND + generateExecuteJavaCommand(processingRequest, listProcessResource);
             output = genericProcess(command, processingRequest);
         }
 
@@ -169,7 +171,7 @@ public class ClusterService {
         if (!Validations.field(listProcessResource)) {
             String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
             executeCommand = resourcesPath
-                    + FileUtilities.PATH_SEPARATOR
+                    + Constants.PATH_SEPARATOR
                     + processingRequest.getBasePath()
                     + SPACE
                     + FilenameUtils
@@ -234,7 +236,7 @@ public class ClusterService {
     }
 
     private String buildFilePathExecute(String basePath, String fileName) {
-        return basePath + FileUtilities.PATH_SEPARATOR + ". " + FilenameUtils.getBaseName(fileName);
+        return basePath + Constants.PATH_SEPARATOR + ". " + FilenameUtils.getBaseName(fileName);
     }
 
     /**

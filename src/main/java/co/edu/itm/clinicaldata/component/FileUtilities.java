@@ -1,5 +1,7 @@
 package co.edu.itm.clinicaldata.component;
 
+import static co.edu.itm.clinicaldata.util.Constants.FILE_SEPARATOR;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,9 +25,6 @@ public class FileUtilities {
     private static final String FOLDER_NAME = "clinicaldata";
     private static final String USER_HOME = System.getProperty("user.home");
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
-    public static final String PATH_SEPARATOR = System.getProperty("path.separator");
-    public static final String PDF_FILE_EXTENSION = "pdf";
 
     private static final Logger LOGGER = Logger.getLogger(FileUtilities.class.getName());
 

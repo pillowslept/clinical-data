@@ -22,7 +22,7 @@ public class ProcessDataService {
     private static final String PROCESS_STATE_NOT_VALID = "La solicitud <%s> no se encuentra en un estado válido para ser procesada. Estado actual <%s>";
     private static final String PROCESS_STARTED = "Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.";
     private static final String PROCESS_RESULT = "La solicitud <%s> ha terminado su procesamiento, su estado actual es <%s>, su resultado fue <%s>";
-    private static final String PROCESS_STATE = "La solicitud <%s> con fecha de creación <%s> se encuentra en estado %s";
+    private static final String PROCESS_STATE = "La solicitud <%s> con fecha de creación <%s> se encuentra en estado <%s>";
 
     private static final Logger LOGGER = Logger.getLogger(ProcessDataService.class.getName());
 

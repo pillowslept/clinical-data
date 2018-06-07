@@ -1,5 +1,7 @@
 package co.edu.itm.clinicaldata.controller;
 
+import static co.edu.itm.clinicaldata.util.Constants.PDF_FILE_EXTENSION;
+
 import java.io.ByteArrayInputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.edu.itm.clinicaldata.component.FileUtilities;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.service.ReportService;
-import co.edu.itm.clinicaldata.component.FileUtilities;
 
 @RestController
 @RequestMapping("/api/report")
@@ -47,7 +49,7 @@ public class ReportController {
                 HttpHeaders.CONTENT_DISPOSITION,
                 "inline; filename="
                         + fileUtilities.createFileName(name,
-                                FileUtilities.PDF_FILE_EXTENSION));
+                                PDF_FILE_EXTENSION));
 
         return ResponseEntity.ok().headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
