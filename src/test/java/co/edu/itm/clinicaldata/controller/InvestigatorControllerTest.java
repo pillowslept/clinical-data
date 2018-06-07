@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 
 import co.edu.itm.clinicaldata.dto.Params;
 import co.edu.itm.clinicaldata.exception.ValidateException;
-import co.edu.itm.clinicaldata.model.Investigator;
 import co.edu.itm.clinicaldata.service.InvestigatorService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,17 +65,16 @@ public class InvestigatorControllerTest {
         // arrange
         Params params = new Params();
         params.setInvestigatorName("Juan");
-        Investigator investigator = new Investigator();
+        String messageToShow = "Investigador creado con éxito";
         Mockito.when(investigatorService.create(Mockito.any(Params.class)))
-                .thenReturn(investigator);
+                .thenReturn(messageToShow);
 
         // act
-        ResponseEntity<Investigator> message = investigatorController
-                .create(params);
+        ResponseEntity<String> message = investigatorController.create(params);
 
         // assert
         Assert.assertEquals(message.getStatusCode(), OK);
-        Assert.assertEquals(message.getBody(), investigator);
+        Assert.assertEquals(message.getBody(), messageToShow);
     }
 
 }
