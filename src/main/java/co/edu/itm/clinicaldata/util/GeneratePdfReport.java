@@ -45,7 +45,7 @@ public class GeneratePdfReport {
         try {
             PdfPTable table = new PdfPTable(5);
             table.setWidthPercentage(TABLE_100_PERCENT);
-            table.setWidths(new int[]{1, 4, 2, 2, 1});
+            table.setWidths(new int[]{1, 4, 2, 2, 2});
 
             table.addCell(headCell("Id"));
             table.addCell(headCell("Identificador"));
