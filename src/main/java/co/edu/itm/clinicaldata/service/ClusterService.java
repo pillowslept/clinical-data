@@ -32,7 +32,6 @@ public class ClusterService {
     private static final String TEMPLATE_NAME = "template.txt";
     private static final String KEY_TO_REPLACE = "%COMMAND%";
     private static final String SH_FILE_NAME = "qsub.sh";
-    private static final String SPACE = " ";
 
     private static final Logger LOGGER = Logger.getLogger(ClusterService.class.getName());
 
@@ -128,7 +127,7 @@ public class ClusterService {
             compileBaseCommand = Constants.JAVA_COMPILE_COMMAND_RESOURCES;
             String resourcesPath = buildResourcesPath(processingRequest, listProcessResource);
             compileCommand = resourcesPath
-                    + SPACE
+                    + Constants.SPACE
                     + buildFilePath(processingRequest.getBasePath(),
                             processingRequest.getFileName());
         } else {
@@ -173,7 +172,7 @@ public class ClusterService {
             executeCommand = resourcesPath
                     + Constants.PATH_SEPARATOR
                     + processingRequest.getBasePath()
-                    + SPACE
+                    + Constants.SPACE
                     + FilenameUtils
                             .getBaseName(processingRequest.getFileName());
         } else {

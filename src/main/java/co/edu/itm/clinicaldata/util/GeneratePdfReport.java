@@ -27,7 +27,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class GeneratePdfReport {
 
-    private static final String SPACE = " ";
+    private static final String ERROR_WHEN_OBTAIN_IMAGE = "Ocurrió un error obteniendo el logo para el PDF, de la ruta <%s>.";
+    private static final String ERROR_GENERATING_PDF = "Ocurrió un error en la generación del PDF, para el investigador <%d>";
+    private static final String REPORT_NAME = "REPORTE DE PROCESAMIENTO DE SOLICITUD";
     private static final int TABLE_100_PERCENT = 100;
     private static final String ITM_LOGO = "http://clusteri.itm.edu.co/wiki/img/tiki/Tiki_WCG.png";
     private static final int FONT_SIZE_BODY = 8;
@@ -67,13 +69,11 @@ public class GeneratePdfReport {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            document.add(createHeader(investigator, "REPORTE DE PROCESAMIENTO DE SOLICITUD"));
+            document.add(createHeader(investigator, REPORT_NAME));
             document.add(table);
             document.close();
         } catch (DocumentException ex) {
-            LOGGER.error(String
-                    .format("Ocurrió un error en la generación del PDF, para el investigador <%d>",
-                            investigator.getId()), ex);
+            LOGGER.error(String.format(ERROR_GENERATING_PDF, investigator.getId()), ex);
         }
         return new ByteArrayInputStream(out.toByteArray());
     }
@@ -94,10 +94,10 @@ public class GeneratePdfReport {
                 sb.append(separator);
                 sb.append(processResource.getName());
                 if(!Validations.field(processResource.getVersion())){
-                    sb.append(SPACE);
+                    sb.append(Constants.SPACE);
                     sb.append("V:");
                     sb.append(processResource.getVersion());
-                    sb.append(SPACE);
+                    sb.append(Constants.SPACE);
                     separator = ", ";
                 }
             }
@@ -115,7 +115,7 @@ public class GeneratePdfReport {
             image = Image.getInstance(new URL(ITM_LOGO));
             image.scalePercent(40);
         } catch (IOException | BadElementException e) {
-            LOGGER.info("Ocurrió un error obteniendo el logo para el PDF.", e);
+            LOGGER.info(String.format(ERROR_WHEN_OBTAIN_IMAGE, ITM_LOGO), e);
         }
         PdfPCell cell = new PdfPCell(image);
         alignCellToCenter(cell);
