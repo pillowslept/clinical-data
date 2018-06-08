@@ -22,7 +22,7 @@ public class ProcessingRequestService {
     private static final String PROCESSING_REQUEST_NOT_FOUND = "La solicitud con identificador <%s> no existe en la base de datos";
 
     @Autowired
-    private ProcessingRequestRepository processingRequestRepository;
+    ProcessingRequestRepository processingRequestRepository;
 
     public ProcessingRequest findByIdentifier(String identifier) {
         return processingRequestRepository.findByIdentifier(identifier);
@@ -73,7 +73,7 @@ public class ProcessingRequestService {
 
     public ProcessingRequest updateState(ProcessingRequest processingRequest, ProcessState processState) {
         processingRequest.setLastUpdate(DateUtilities.getTimestamp());
-        processingRequest.setState(ProcessState.PROCESSING.getState());
+        processingRequest.setState(processState.getState());
         update(processingRequest);
         return processingRequest;
     }

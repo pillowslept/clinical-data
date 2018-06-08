@@ -23,7 +23,7 @@ public class ProcessResourceService {
     private static final String NAME_NOT_VALID = "El campo <name> del recurso no es válido";
 
     @Autowired
-    private ProcessResourceRepository processResourceRepository;
+    ProcessResourceRepository processResourceRepository;
 
     @Autowired
     FileUtilities fileUtilities;
