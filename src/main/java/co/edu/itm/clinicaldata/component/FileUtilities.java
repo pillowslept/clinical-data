@@ -12,12 +12,14 @@ import java.nio.file.Paths;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import co.edu.itm.clinicaldata.exception.ValidateException;
 
 @Component
 public class FileUtilities {
 
+    private static final String ERROR_OBTAINING_BYTES_FROM_FILE = "Ocurrió un error obteniendo el archivo a procesar";
     private static final String ERROR_READING_FILE = "El archivo de la ruta <%s> no pudo ser leído. ";
     private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo con la función a procesar";
     private static final String RESOURCES_FOLDER = "resources";
@@ -89,4 +91,15 @@ public class FileUtilities {
         }
         return isLinux;
     }
+
+    public byte[] getBytesFromFile(MultipartFile file) throws ValidateException {
+        byte[] bytes;
+        try {
+            bytes = file.getBytes();
+        } catch (IOException e) {
+            throw new ValidateException(ERROR_OBTAINING_BYTES_FROM_FILE);
+        }
+        return bytes;
+    }
+
 }

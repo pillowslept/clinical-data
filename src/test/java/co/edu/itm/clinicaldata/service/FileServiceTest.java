@@ -68,6 +68,7 @@ public class FileServiceTest {
         Mockito.when(fileUtilities.buildBasePath(Mockito.anyString(), Mockito.anyString())).thenReturn("path");
         Mockito.when(processingRequestService.create(Mockito.anyString(), Mockito.anyString(), Mockito.any(byte[].class),
                 Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(new ProcessingRequest());
+        Mockito.when(fileUtilities.getBytesFromFile(Mockito.any())).thenReturn("abc".getBytes());
     }
 
     @Test

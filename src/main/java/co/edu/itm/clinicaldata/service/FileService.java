@@ -1,6 +1,5 @@
 package co.edu.itm.clinicaldata.service;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import co.edu.itm.clinicaldata.model.ProcessingRequest;
 @Service
 public class FileService {
 
-    private static final String ERROR_OBTAINING_BYTES_FROM_FILE = "Ocurrió un error obteniendo el archivo a procesar";
     private static final String UPLOAD_SUCCESSFUL = "El archivo ha sido almacenado con éxito, identificador generado para la solicitud: <%s>.";
     private static final String INVALID_FILE_EXTENSION = "La extensión del archivo a procesar no es soportada por la aplicación. Extensiones permitidas: %s";
 
@@ -50,7 +48,7 @@ public class FileService {
         String fileName = file.getOriginalFilename(); 
         Language language = getLanguage(fileName);
         Investigator investigator = investigatorService.validateAndFind(investigatorId);
-        byte[] bytes = getBytesFromFile(file);
+        byte[] bytes = fileUtilities.getBytesFromFile(file);
 
         String identifier = randomUtilities.generateIdentifier();
         String basePath = fileUtilities.buildBasePath(language.getName(), identifier);
@@ -65,17 +63,6 @@ public class FileService {
 
     private String buildPath(String basePath, String fileName){
         return basePath + fileName;
-    }
-
-    private byte[] getBytesFromFile(MultipartFile file)
-            throws ValidateException {
-        byte[] bytes;
-        try {
-            bytes = file.getBytes();
-        } catch (IOException e) {
-            throw new ValidateException(ERROR_OBTAINING_BYTES_FROM_FILE);
-        }
-        return bytes;
     }
 
     private Language getLanguage(String fileOriginalName) throws ValidateException {
