@@ -63,7 +63,7 @@ public class FileServiceTest {
     }
 
     private void commonMocks() throws ValidateException{
-        Mockito.when(investigatorService.validateAndfind(Mockito.anyLong())).thenReturn(new Investigator());
+        Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(new Investigator());
         Mockito.when(randomUtilities.generateIdentifier()).thenReturn("abcabc");
         Mockito.when(fileUtilities.buildBasePath(Mockito.anyString(), Mockito.anyString())).thenReturn("path");
         Mockito.when(processingRequestService.create(Mockito.anyString(), Mockito.anyString(), Mockito.any(byte[].class),

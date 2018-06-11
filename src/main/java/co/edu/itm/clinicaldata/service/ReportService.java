@@ -39,7 +39,7 @@ public class ReportService {
 
     public ByteArrayInputStream byInvestigator(Long investigatorId) throws ValidateException {
 
-        Investigator investigator = investigatorService.validateAndfind(investigatorId);
+        Investigator investigator = investigatorService.validateAndFind(investigatorId);
         List<ProcessingRequest> listProcessingRequest = processingRequestService.findByInvestigatorId(investigatorId);
 
         return GeneratePdfReport.processRequest(investigator, listProcessingRequest, new ArrayList<>());

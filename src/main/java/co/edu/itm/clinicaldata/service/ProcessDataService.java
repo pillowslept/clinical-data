@@ -83,7 +83,7 @@ public class ProcessDataService {
                 .validateAndFindByIdentifier(params.getIdentifier());
         validateCreatedProcess(processingRequest);
 
-        Investigator investigator = investigatorService.validateAndfind(params.getInvestigatorId());
+        Investigator investigator = investigatorService.validateAndFind(params.getInvestigatorId());
 
         clusterService.validateLanguageTemplate(processingRequest);
 

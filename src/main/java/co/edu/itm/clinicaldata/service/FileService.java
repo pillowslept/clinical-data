@@ -49,7 +49,7 @@ public class FileService {
     public String upload(MultipartFile file, Long investigatorId) throws ValidateException {
         String fileName = file.getOriginalFilename(); 
         Language language = getLanguage(fileName);
-        Investigator investigator = investigatorService.validateAndfind(investigatorId);
+        Investigator investigator = investigatorService.validateAndFind(investigatorId);
         byte[] bytes = getBytesFromFile(file);
 
         String identifier = randomUtilities.generateIdentifier();

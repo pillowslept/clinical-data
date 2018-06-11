@@ -50,20 +50,20 @@ public class InvestigatorService {
     }
 
     public String inactivate(Params params) throws ValidateException {
-        Investigator investigator = validateAndfind(params.getInvestigatorId());
+        Investigator investigator = validateAndFind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.INACTIVE.getState());
         update(investigator);
         return String.format(INVESTIGATOR_INACTIVATED, params.getInvestigatorId());
     }
 
     public String activate(Params params) throws ValidateException {
-        Investigator investigator = validateAndfind(params.getInvestigatorId());
+        Investigator investigator = validateAndFind(params.getInvestigatorId());
         investigator.setState(InvestigatorState.ACTIVE.getState());
         update(investigator);
         return String.format(INVESTIGATOR_ACTIVATED, params.getInvestigatorId());
     }
 
-    public Investigator validateAndfind(Long investigatorId) throws ValidateException {
+    public Investigator validateAndFind(Long investigatorId) throws ValidateException {
         validateInvestigatorId(investigatorId);
         Investigator investigator = findById(investigatorId);
         if(investigator == null){

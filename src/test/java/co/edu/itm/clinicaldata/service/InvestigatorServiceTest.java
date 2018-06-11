@@ -75,7 +75,7 @@ public class InvestigatorServiceTest {
         Mockito.when(investigatorRepository.findOne(Mockito.anyLong())).thenReturn(new Investigator());
 
         // act
-        Investigator investigator = investigatorService.validateAndfind(investigatorId);
+        Investigator investigator = investigatorService.validateAndFind(investigatorId);
 
         // assert
         Assert.assertNotNull(investigator);
@@ -87,7 +87,7 @@ public class InvestigatorServiceTest {
         Long investigatorId = null;
 
         // act
-        investigatorService.validateAndfind(investigatorId);
+        investigatorService.validateAndFind(investigatorId);
     }
 
     @Test(expected = ValidateException.class)
@@ -97,7 +97,7 @@ public class InvestigatorServiceTest {
         Mockito.when(investigatorRepository.findOne(Mockito.anyLong())).thenReturn(null);
 
         // act
-        investigatorService.validateAndfind(investigatorId);
+        investigatorService.validateAndFind(investigatorId);
     }
 
     @Test
