@@ -24,7 +24,7 @@ public class ProcessDataController {
     public ResponseEntity<String> processState(
             @PathVariable("identifier") String identifier)
             throws ValidateException {
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 processDataService.processState(identifier), HttpStatus.OK);
     }
 
@@ -32,14 +32,14 @@ public class ProcessDataController {
     public ResponseEntity<String> processResult(
             @PathVariable("identifier") String identifier)
             throws ValidateException {
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 processDataService.processResult(identifier), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public ResponseEntity<String> startProcess(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 processDataService.startProcess(params), HttpStatus.OK);
     }
 

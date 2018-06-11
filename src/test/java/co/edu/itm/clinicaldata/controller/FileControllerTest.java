@@ -43,7 +43,7 @@ public class FileControllerTest {
         // assert
         Assert.assertNotNull(message);
         Assert.assertEquals(message.getBody(), returnMessage);
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
     }
 
 }

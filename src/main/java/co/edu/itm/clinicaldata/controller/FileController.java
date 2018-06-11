@@ -24,7 +24,7 @@ public class FileController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("investigatorId") Long investigatorId)
             throws ValidateException {
-        return new ResponseEntity<String>(fileService.upload(file,
+        return new ResponseEntity<>(fileService.upload(file,
                 investigatorId), HttpStatus.OK);
     }
 

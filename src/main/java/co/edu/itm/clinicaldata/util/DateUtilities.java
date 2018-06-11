@@ -9,8 +9,7 @@ public class DateUtilities {
 
     public static String timestampToString(Timestamp timestamp) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        String string  = dateFormat.format(timestamp);
-        return string;
+        return dateFormat.format(timestamp);
     }
 
     public static Timestamp getTimestamp(){

@@ -38,7 +38,7 @@ public class InvestigatorControllerTest {
                 .inactivate(params);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToReturn);
     }
 
@@ -56,7 +56,7 @@ public class InvestigatorControllerTest {
                 .activate(params);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToReturn);
     }
 
@@ -73,7 +73,7 @@ public class InvestigatorControllerTest {
         ResponseEntity<String> message = investigatorController.create(params);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToShow);
     }
 

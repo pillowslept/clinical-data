@@ -35,7 +35,7 @@ public class ProcessDataControllerTest {
         ResponseEntity<String> message = processDataController.processState(processId);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToReturn);
     }
 
@@ -50,7 +50,7 @@ public class ProcessDataControllerTest {
         ResponseEntity<String> message = processDataController.processResult(processId);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToReturn);
     }
 
@@ -66,7 +66,7 @@ public class ProcessDataControllerTest {
         ResponseEntity<String> message = processDataController.startProcess(params);
 
         // assert
-        Assert.assertEquals(message.getStatusCode(), OK);
+        Assert.assertEquals(OK, message.getStatusCode());
         Assert.assertEquals(message.getBody(), messageToReturn);
     }
 

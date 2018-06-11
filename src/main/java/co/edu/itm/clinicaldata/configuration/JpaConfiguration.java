@@ -2,7 +2,6 @@ package co.edu.itm.clinicaldata.configuration;
 
 import java.util.Properties;
 
-import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -73,7 +72,7 @@ public class JpaConfiguration {
 	 * Entity Manager Factory setup.
 	 */
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource(dataSource());
 		factoryBean.setPackagesToScan(new String[] { "co.edu.itm.clinicaldata.model" });
@@ -87,8 +86,7 @@ public class JpaConfiguration {
 	 */
 	@Bean
 	public JpaVendorAdapter jpaVendorAdapter() {
-		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-		return hibernateJpaVendorAdapter;
+		return new HibernateJpaVendorAdapter();
 	}
 
 	/*

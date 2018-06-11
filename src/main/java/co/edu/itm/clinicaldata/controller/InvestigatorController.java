@@ -22,21 +22,21 @@ public class InvestigatorController {
     @RequestMapping(value = "/inactivate", method = RequestMethod.POST)
     public ResponseEntity<String> inactivate(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 investigatorService.inactivate(params), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/activate", method = RequestMethod.POST)
     public ResponseEntity<String> activate(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<String>(investigatorService.activate(params),
+        return new ResponseEntity<>(investigatorService.activate(params),
                 HttpStatus.OK);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public ResponseEntity<String> create(@RequestBody Params params)
             throws ValidateException {
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 investigatorService.create(params), HttpStatus.OK);
     }
 

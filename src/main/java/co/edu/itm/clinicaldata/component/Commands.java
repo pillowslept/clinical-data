@@ -35,7 +35,7 @@ public class Commands {
     }
 
     private String readOutput(InputStream inputStream) throws IOException {
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(
                 inputStream));
         String line = "";

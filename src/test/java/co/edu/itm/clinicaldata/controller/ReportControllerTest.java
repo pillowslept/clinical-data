@@ -45,7 +45,7 @@ public class ReportControllerTest {
 
         // assert
         Assert.assertNotNull(inputStream);
-        Assert.assertEquals(inputStream.getStatusCode(), OK);
+        Assert.assertEquals(OK, inputStream.getStatusCode());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ReportControllerTest {
 
         // assert
         Assert.assertNotNull(inputStream);
-        Assert.assertEquals(inputStream.getStatusCode(), OK);
+        Assert.assertEquals(OK, inputStream.getStatusCode());
     }
 
 }

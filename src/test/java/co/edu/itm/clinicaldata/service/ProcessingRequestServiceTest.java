@@ -50,7 +50,7 @@ public class ProcessingRequestServiceTest {
 
         // assert
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 0);
+        Assert.assertEquals(0, list.size());
     }
 
     @Test

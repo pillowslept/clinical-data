@@ -68,7 +68,7 @@ public class ProcessResourceServiceTest {
 
         // assert
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 0);
+        Assert.assertEquals(0, list.size());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ProcessResourceServiceTest {
 
         // assert
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 1);
+        Assert.assertEquals(1, list.size());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ProcessResourceServiceTest {
 
         // assert
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 0);
+        Assert.assertEquals(0, list.size());
     }
 
     @Test(expected=ValidateException.class)
