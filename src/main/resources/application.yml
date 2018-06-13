@@ -1,3 +1,10 @@
+configuration:
+  defaultFolder: clinicaldata
+  templateName: template.txt
+  errOutputFile: prueba.err
+  logOutputFile: prueba.out
+  shFileName: qsub.sh
+  keyTtoReplace: '%COMMAND%'
 ---
 server:
   port: 9000
@@ -47,7 +54,7 @@ logging:
     org.hibernate: ERROR
 datasource:
   clinicaldata:
-    url: jdbc:mysql://localhost:3306/websystique
+    url: jdbc:mysql://localhost:3306/clinicaldata
     username: root
     password: 
     driverClassName: com.mysql.jdbc.Driver

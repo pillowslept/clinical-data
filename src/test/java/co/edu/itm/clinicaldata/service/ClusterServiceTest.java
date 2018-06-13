@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import co.edu.itm.clinicaldata.component.Commands;
 import co.edu.itm.clinicaldata.component.FileUtilities;
+import co.edu.itm.clinicaldata.configuration.FolderConf;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
 import co.edu.itm.clinicaldata.exception.ValidateException;
@@ -30,6 +31,9 @@ public class ClusterServiceTest {
 
     @Mock
     FileUtilities fileUtilities;
+
+    @Mock
+    FolderConf folderConf;
 
     @InjectMocks
     ClusterService clusterService;
@@ -54,6 +58,7 @@ public class ClusterServiceTest {
         Mockito.when(fileUtilities.templateLanguageFolder(Mockito.anyString())).thenReturn("template/folder");
         Mockito.when(fileUtilities.readFile(Mockito.anyString())).thenReturn("Readed content");
         Mockito.when(fileUtilities.isLinux()).thenReturn(Boolean.FALSE);
+        Mockito.when(folderConf.getKeyToReplace()).thenReturn("%COMMAND%");
     }
 
     @Test

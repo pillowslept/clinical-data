@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import co.edu.itm.clinicaldata.component.Commands;
+import co.edu.itm.clinicaldata.component.FileUtilities;
+import co.edu.itm.clinicaldata.configuration.FolderConf;
 import co.edu.itm.clinicaldata.dto.Output;
 import co.edu.itm.clinicaldata.enums.Language;
 import co.edu.itm.clinicaldata.enums.ProcessState;
@@ -16,7 +18,6 @@ import co.edu.itm.clinicaldata.exception.ValidateException;
 import co.edu.itm.clinicaldata.model.ProcessResource;
 import co.edu.itm.clinicaldata.model.ProcessingRequest;
 import co.edu.itm.clinicaldata.queue.ProcessQueue;
-import co.edu.itm.clinicaldata.component.FileUtilities;
 import co.edu.itm.clinicaldata.util.Constants;
 import co.edu.itm.clinicaldata.util.Validations;
 
@@ -27,11 +28,6 @@ public class ClusterService {
     private static final String SYSTEM_NOT_VALID = "Sistema no válido para ejecución de archivos con comandos qsub";
     private static final String TEMPLATE_FILE_NOT_EXISTS = "El template <%s> no existe actualmente en el servidor, favor solicitar configuración al administrador";
     private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo .sh en el directorio";
-    private static final String ERR_OUTPUT_FILE = "prueba.err";
-    private static final String LOG_OUTPUT_FILE = "prueba.out";
-    private static final String TEMPLATE_NAME = "template.txt";
-    private static final String KEY_TO_REPLACE = "%COMMAND%";
-    private static final String SH_FILE_NAME = "qsub.sh";
 
     private static final Logger LOGGER = Logger.getLogger(ClusterService.class.getName());
 
@@ -43,6 +39,9 @@ public class ClusterService {
 
     @Autowired
     FileUtilities fileUtilities;
+
+    @Autowired
+    FolderConf folderConf;
 
     /**
      * Crea los archivos necesarios para enviar a través del comando qsub una solicitud
@@ -100,19 +99,19 @@ public class ClusterService {
         if(fileUtilities.isLinux()){
             String result = "";
             ProcessState processState = null;
-            Output executeOutput = commands.executeCommand(Constants.QSUB_COMMAND, processingRequest.getBasePath() + SH_FILE_NAME);
+            Output executeOutput = commands.executeCommand(Constants.QSUB_COMMAND, processingRequest.getBasePath() + folderConf.getShFileName());
             if (!Validations.field(executeOutput.getError())) {
                 result = executeOutput.getError();
                 processState = ProcessState.FINISHED_WITH_ERRORS;
                 LOGGER.info("Archivo enviado al cluster presenta errores");
             } else {
                 result = executeOutput.getResult();
-                processState = ProcessState.FINISHED_OK;
+                processState = ProcessState.PROCESSING;
                 LOGGER.info("Archivo enviado al cluster ok");
+                ProcessQueue.getInstance().add(processingRequest.getIdentifier());
             }
             output.setResult(result);
             output.setState(processState.getState());
-            ProcessQueue.getInstance().add(processingRequest.getIdentifier());
         }else{
             output.setResult(SYSTEM_NOT_VALID);
             output.setState(ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
@@ -193,10 +192,10 @@ public class ClusterService {
     private boolean createBourneShellScript(ProcessingRequest processingRequest, String command) {
         boolean fileCreated = false;
         String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
-        String readedContent = fileUtilities.readFile(templateLanguageFolder + TEMPLATE_NAME);
-        readedContent = readedContent.replace(KEY_TO_REPLACE, command);
+        String readedContent = fileUtilities.readFile(templateLanguageFolder + folderConf.getTemplateName());
+        readedContent = readedContent.replace(folderConf.getKeyToReplace(), command);
         try {
-            fileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + SH_FILE_NAME);
+            fileUtilities.createFile(readedContent.getBytes(), processingRequest.getBasePath() + folderConf.getShFileName());
             fileCreated = true;
         } catch (ValidateException e) {
             LOGGER.info(ERROR_CREATING_FILE);
@@ -240,39 +239,51 @@ public class ClusterService {
 
     /**
      * Valida si un proceso enviado al cluster ha terminado de ser procesado.
-     * Valida si existe archivo .out o .err dentro del folder de creación del qsub
      * @param identifier
      * @return
      */
     public boolean validateProcessState(String identifier) {
         boolean hasEndProcess = false;
-        String result = "";
-        ProcessState processState = null;
         ProcessingRequest processingRequest = processingRequestService.findByIdentifier(identifier);
-        LOGGER.info("State" + processingRequest.getState());
-        if(!processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
+        LOGGER.info(String.format("Solicitud %s con estado %s comienza a ser validada", identifier, processingRequest.getState()));
+        if (!processingRequest.getState().equals(ProcessState.PROCESSING.getState())) {
             hasEndProcess = true;
-        }else{
-            boolean exists = fileUtilities.existsFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
-            if(exists){
-                hasEndProcess = true;
-                result = fileUtilities.readFile(processingRequest.getBasePath() + LOG_OUTPUT_FILE);
-                processState = ProcessState.FINISHED_OK;
-            }else{
-                exists = fileUtilities.existsFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
-                if(exists){
-                    hasEndProcess = true;
-                    result = fileUtilities.readFile(processingRequest.getBasePath() + ERR_OUTPUT_FILE);
-                    processState = ProcessState.FINISHED_WITH_ERRORS;
-                }
-            }
+        } else {
+            hasEndProcess = validateResponseExistence(processingRequest);
+        }
+        return hasEndProcess;
+    }
 
-            if(exists){
-                Output output = new Output();
-                output.setResult(result);
-                output.setState(processState.getState());
-                updateProcessingRequest(processingRequest, output);
+    /**
+     * Valida si existe archivo .out o .err dentro del folder de creación del qsub
+     * @param processingRequest
+     * @return
+     */
+    private boolean validateResponseExistence(ProcessingRequest processingRequest) {
+        ProcessState processState = null;
+        String result = "";
+        boolean hasEndProcess = false;
+        String outputPathFile = processingRequest.getBasePath() + folderConf.getLogOutputFile();
+        boolean exists = fileUtilities.existsFile(outputPathFile);
+        if (exists) {
+            hasEndProcess = true;
+            result = fileUtilities.readFile(outputPathFile);
+            processState = ProcessState.FINISHED_OK;
+        } else {
+            String errorPathFile = processingRequest.getBasePath() + folderConf.getErrOutputFile();
+            exists = fileUtilities.existsFile(errorPathFile);
+            if (exists) {
+                hasEndProcess = true;
+                result = fileUtilities.readFile(errorPathFile);
+                processState = ProcessState.FINISHED_WITH_ERRORS;
             }
+        }
+
+        if (exists) {
+            Output output = new Output();
+            output.setResult(result);
+            output.setState(processState.getState());
+            updateProcessingRequest(processingRequest, output);
         }
         return hasEndProcess;
     }
@@ -285,10 +296,10 @@ public class ClusterService {
      */
     public void validateLanguageTemplate(ProcessingRequest processingRequest) throws ValidateException{
         String templateLanguageFolder = fileUtilities.templateLanguageFolder(processingRequest.getLanguage());
-        boolean exists = fileUtilities.existsFile(templateLanguageFolder + TEMPLATE_NAME);
+        boolean exists = fileUtilities.existsFile(templateLanguageFolder + folderConf.getTemplateName());
         if (!exists) {
             throw new ValidateException(String.format(TEMPLATE_FILE_NOT_EXISTS,
-                    TEMPLATE_NAME));
+                    folderConf.getTemplateName()));
         }
     }
 
