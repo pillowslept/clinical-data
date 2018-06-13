@@ -13,6 +13,8 @@ import co.edu.itm.clinicaldata.dto.Output;
 @Component
 public class Commands {
 
+    private static final String ERROR_EXECUTING_COMMAND = "Ocurrió un error intentando ejecutar el comando <%s>";
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static final Logger LOGGER = Logger.getLogger(Commands.class.getName());
 
     public Output executeCommand(String baseCommand, String pathFile){
@@ -29,7 +31,7 @@ public class Commands {
             output.setResult(readOutput(p.getInputStream()));
             output.setError(readOutput(p.getErrorStream()));
         } catch (Exception ex) {
-            LOGGER.error(String.format("Ocurrió un error intentando ejecutar el comando <%s>", command), ex);
+            LOGGER.error(String.format(ERROR_EXECUTING_COMMAND, command), ex);
         }
         return output;
     }
@@ -40,7 +42,8 @@ public class Commands {
                 inputStream));
         String line = "";
         while ((line = reader.readLine()) != null) {
-            output.append(line + "\n");
+            output.append(line);
+            output.append(LINE_SEPARATOR);
         }
         return output.toString();
     }
