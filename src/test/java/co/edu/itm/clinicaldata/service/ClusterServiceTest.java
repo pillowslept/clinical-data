@@ -109,4 +109,64 @@ public class ClusterServiceTest {
         Assert.assertEquals(processingRequest.getState(), ProcessState.FINISHED_WITHOUT_ACTIONS.getState());
     }
 
+    @Test
+    public void validateLanguageTemplateTest() throws ValidateException {
+        // arrange
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setLanguage(Language.JAVA.getName());
+        Mockito.when(fileUtilities.templateLanguageFolder(Mockito.anyString())).thenReturn("folder/template");
+        Mockito.when(fileUtilities.existsFile(Mockito.anyString())).thenReturn(Boolean.TRUE);
+
+        // act
+        clusterService.validateLanguageTemplate(processingRequest);
+
+        // assert
+        Assert.assertNotNull(processingRequest);
+    }
+
+    @Test(expected=ValidateException.class)
+    public void validateLanguageTemplateNotValidTest() throws ValidateException {
+        // arrange
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setLanguage(Language.JAVA.getName());
+        Mockito.when(fileUtilities.templateLanguageFolder(Mockito.anyString())).thenReturn("folder/template");
+        Mockito.when(fileUtilities.existsFile(Mockito.anyString())).thenReturn(Boolean.FALSE);
+
+        // act
+        clusterService.validateLanguageTemplate(processingRequest);
+    }
+
+    @Test
+    public void validateProcessStateFinishedTest() throws ValidateException {
+        // arrange
+        String identifier = "";
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setState(ProcessState.FINISHED_OK.getState());
+        Mockito.when(processingRequestService.findByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
+
+        // act
+        boolean response = clusterService.validateProcessState(identifier);
+
+        // assert
+        Assert.assertEquals(Boolean.TRUE, response);
+    }
+
+    @Test
+    public void validateProcessStateErrResponseTest() throws ValidateException {
+        // arrange
+        String identifier = "";
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setState(ProcessState.PROCESSING.getState());
+        Mockito.when(processingRequestService.findByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
+        Mockito.when(fileUtilities.existsFile(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(fileUtilities.readFile(Mockito.anyString())).thenReturn("Readed content");
+
+        // act
+        boolean response = clusterService.validateProcessState(identifier);
+
+        // assert
+        Assert.assertEquals(Boolean.TRUE, response);
+        Assert.assertNotNull(processingRequest);
+        Assert.assertEquals(ProcessState.FINISHED_OK.getState(), processingRequest.getState());
+    }
 }
