@@ -11,9 +11,11 @@ import java.nio.file.Paths;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.edu.itm.clinicaldata.configuration.FolderConf;
 import co.edu.itm.clinicaldata.exception.ValidateException;
 
 @Component
@@ -22,13 +24,13 @@ public class FileUtilities {
     private static final String ERROR_OBTAINING_BYTES_FROM_FILE = "Ocurrió un error obteniendo el archivo a procesar";
     private static final String ERROR_READING_FILE = "El archivo de la ruta <%s> no pudo ser leído. ";
     private static final String ERROR_CREATING_FILE = "Ocurrió un error creando el archivo con la función a procesar";
-    private static final String RESOURCES_FOLDER = "resources";
-    private static final String TEMPLATE_FOLDER = "resources";
-    private static final String FOLDER_NAME = "clinicaldata";
     private static final String USER_HOME = System.getProperty("user.home");
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(FileUtilities.class.getName());
+
+    @Autowired
+    FolderConf folderConf;
 
     public void createFile(byte[] functionToProcess, String path) throws ValidateException {
         try {
@@ -46,15 +48,15 @@ public class FileUtilities {
     }
 
     private String baseLanguageFolder(String languageFolder){
-        return USER_HOME + FILE_SEPARATOR + FOLDER_NAME + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR;
+        return USER_HOME + FILE_SEPARATOR + folderConf.getDefaultFolder() + FILE_SEPARATOR + languageFolder + FILE_SEPARATOR;
     }
 
     public String resourceLanguageFolder(String languageFolder){
-        return baseLanguageFolder(languageFolder) + RESOURCES_FOLDER + FILE_SEPARATOR;
+        return baseLanguageFolder(languageFolder) + folderConf.getResourcesFolder() + FILE_SEPARATOR;
     }
 
     public String templateLanguageFolder(String languageFolder){
-        return baseLanguageFolder(languageFolder) + TEMPLATE_FOLDER + FILE_SEPARATOR;
+        return baseLanguageFolder(languageFolder) + folderConf.getTemplateFolder() + FILE_SEPARATOR;
     }
 
     public void createBasePath(String basePath){

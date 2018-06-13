@@ -1,5 +1,7 @@
 configuration:
   defaultFolder: clinicaldata
+  templateFolder: resources
+  resourcesFolder: resources
   templateName: template.txt
   errOutputFile: prueba.err
   logOutputFile: prueba.out
@@ -11,7 +13,7 @@ server:
   contextPath: /ClinicalData
 ---
 spring:
-  profiles: local, default
+  profiles: local
   http:
     multipart:
       max-file-size: 2KB
@@ -39,7 +41,7 @@ datasource:
       dialect: org.hibernate.dialect.H2Dialect
 ---
 spring:
-  profiles: prod
+  profiles: prod, default
   http:
     multipart:
       max-file-size: 2KB
