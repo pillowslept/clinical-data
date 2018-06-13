@@ -2,11 +2,11 @@ configuration:
   defaultFolder: clinicaldata
   templateFolder: resources
   resourcesFolder: resources
-  templateName: template.txt
-  errOutputFile: prueba.err
-  logOutputFile: prueba.out
-  shFileName: qsub.sh
-  keyTtoReplace: '%COMMAND%'
+  templateName: 'template.txt'
+  errOutputFile: 'prueba.err'
+  logOutputFile: 'prueba.out'
+  shFileName: 'qsub.sh'
+  keyToReplace: '%COMMAND%'
 ---
 server:
   port: 9000
