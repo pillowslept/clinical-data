@@ -106,13 +106,14 @@ public class ProcessDataServiceTest {
         // arrange
         Params params = new Params();
         params.setInvestigatorId(INVESTIGATOR_ID);
-        ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setIdentifier("1233");
-        processingRequest.setState(ProcessState.CREATED.getState());
-        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
         Investigator investigator = new Investigator();
         investigator.setName("Juan");
         investigator.setId(INVESTIGATOR_ID);
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setIdentifier("1233");
+        processingRequest.setState(ProcessState.CREATED.getState());
+        processingRequest.setInvestigator(investigator);
+        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
         Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigator);
         Mockito.when(processResourceService.validateRequiredResources(Mockito.any(), Mockito.any(ProcessingRequest.class))).thenReturn(new ArrayList<>());
         Mockito.when(processingRequestService.updateState(Mockito.any(), Mockito.any())).thenReturn(processingRequest);
@@ -142,13 +143,17 @@ public class ProcessDataServiceTest {
         // arrange
         Params params = new Params();
         params.setInvestigatorId(INVESTIGATOR_ID);
+        Investigator investigator = new Investigator();
+        investigator.setId(2L);
         ProcessingRequest processingRequest = new ProcessingRequest();
         processingRequest.setIdentifier("1233");
         processingRequest.setState(ProcessState.CREATED.getState());
+        processingRequest.setInvestigator(investigator);
+        Investigator investigatorFound = new Investigator();
+        investigatorFound.setId(INVESTIGATOR_ID);
+        investigatorFound.setName("Juan");
         Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
-        Investigator investigator = new Investigator();
-        investigator.setId(2L);
-        Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigator);
+        Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigatorFound);
 
         // act
         processDataService.startProcess(params);

@@ -85,7 +85,7 @@ public class ProcessDataService {
         validateCreatedProcess(processingRequest);
 
         Investigator investigator = investigatorService.validateAndFind(params.getInvestigatorId());
-        validateInvestigatorRequest(params, investigator);
+        validateInvestigatorRequest(processingRequest, investigator);
 
         clusterService.validateLanguageTemplate(processingRequest);
 
@@ -98,8 +98,8 @@ public class ProcessDataService {
         return String.format(PROCESS_STARTED, investigator.getName(), processingRequest.getIdentifier());
     }
 
-    private void validateInvestigatorRequest(Params params, Investigator investigator) throws ValidateException {
-        if(!investigator.getId().equals(params.getInvestigatorId())) {
+    private void validateInvestigatorRequest(ProcessingRequest processingRequest, Investigator investigator) throws ValidateException {
+        if(!investigator.getId().equals(processingRequest.getInvestigator().getId())) {
             throw new ValidateException(String.format(INVESTIGATOR_NOT_VALID_FOR_REQUEST, investigator.getId()));
         }
     }
