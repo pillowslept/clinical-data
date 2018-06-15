@@ -18,6 +18,7 @@ import co.edu.itm.clinicaldata.util.DateUtilities;
 @Service
 public class ProcessDataService {
 
+    private static final String INVESTIGATOR_NOT_VALID_FOR_REQUEST = "El investigador con id <%d> no es válido para la solicitud.";
     private static final String PROCESS_NOT_FINISHED_YET = "La solicitud <%s> no ha terminado su procesamiento";
     private static final String PROCESS_STATE_NOT_VALID = "La solicitud <%s> no se encuentra en un estado válido para ser procesada. Estado actual <%s>";
     private static final String PROCESS_STARTED = "Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.";
@@ -84,6 +85,7 @@ public class ProcessDataService {
         validateCreatedProcess(processingRequest);
 
         Investigator investigator = investigatorService.validateAndFind(params.getInvestigatorId());
+        validateInvestigatorRequest(params, investigator);
 
         clusterService.validateLanguageTemplate(processingRequest);
 
@@ -94,6 +96,12 @@ public class ProcessDataService {
         clusterService.sendProcessToCluster(processingRequest, listProcessResource);
 
         return String.format(PROCESS_STARTED, investigator.getName(), processingRequest.getIdentifier());
+    }
+
+    private void validateInvestigatorRequest(Params params, Investigator investigator) throws ValidateException {
+        if(!investigator.getId().equals(params.getInvestigatorId())) {
+            throw new ValidateException(String.format(INVESTIGATOR_NOT_VALID_FOR_REQUEST, investigator.getId()));
+        }
     }
 
     private void validateCreatedProcess(ProcessingRequest processingRequest) throws ValidateException {

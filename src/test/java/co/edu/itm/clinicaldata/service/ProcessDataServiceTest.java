@@ -21,6 +21,8 @@ import co.edu.itm.clinicaldata.model.ProcessingRequest;
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessDataServiceTest {
 
+    private static final long INVESTIGATOR_ID = 1L;
+
     @Mock
     InvestigatorService investigatorService;
 
@@ -103,12 +105,14 @@ public class ProcessDataServiceTest {
     public void startProcessTest() throws ValidateException {
         // arrange
         Params params = new Params();
+        params.setInvestigatorId(INVESTIGATOR_ID);
         ProcessingRequest processingRequest = new ProcessingRequest();
         processingRequest.setIdentifier("1233");
         processingRequest.setState(ProcessState.CREATED.getState());
         Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
         Investigator investigator = new Investigator();
         investigator.setName("Juan");
+        investigator.setId(INVESTIGATOR_ID);
         Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigator);
         Mockito.when(processResourceService.validateRequiredResources(Mockito.any(), Mockito.any(ProcessingRequest.class))).thenReturn(new ArrayList<>());
         Mockito.when(processingRequestService.updateState(Mockito.any(), Mockito.any())).thenReturn(processingRequest);
@@ -133,4 +137,20 @@ public class ProcessDataServiceTest {
         processDataService.startProcess(params);
     }
 
+    @Test(expected=ValidateException.class)
+    public void startProcessNotValidInvestigatorTest() throws ValidateException {
+        // arrange
+        Params params = new Params();
+        params.setInvestigatorId(INVESTIGATOR_ID);
+        ProcessingRequest processingRequest = new ProcessingRequest();
+        processingRequest.setIdentifier("1233");
+        processingRequest.setState(ProcessState.CREATED.getState());
+        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
+        Investigator investigator = new Investigator();
+        investigator.setId(2L);
+        Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigator);
+
+        // act
+        processDataService.startProcess(params);
+    }
 }
