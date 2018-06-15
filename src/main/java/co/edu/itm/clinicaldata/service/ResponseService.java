@@ -27,6 +27,13 @@ public class ResponseService {
     @Autowired
     FolderConf folderConf;
 
+    /**
+     * Consulta si la solicitud terminó su ejecución y valida si existe archivo de respuesta
+     * de error o de respuesta correcta y lo retorna para descargar
+     * @param processIdentifier
+     * @return
+     * @throws ValidateException
+     */
     public FileSystemResource obtainResponseFile(String processIdentifier) throws ValidateException {
         ProcessingRequest processingRequest = processingRequestService.validateFinishedProcess(processIdentifier);
 
@@ -43,8 +50,14 @@ public class ResponseService {
         return new FileSystemResource(filePath);
     }
 
+    /**
+     * Consulta la solicitud y valida si existe en disco duro archivo adjuntado y lo retorna para descargar
+     * @param processIdentifier
+     * @return
+     * @throws ValidateException
+     */
     public FileSystemResource obtainRequestFile(String processIdentifier) throws ValidateException {
-        ProcessingRequest processingRequest = processingRequestService.validateFinishedProcess(processIdentifier);
+        ProcessingRequest processingRequest = processingRequestService.validateAndFindByIdentifier(processIdentifier);
 
         String filePath = validateExistenceFile(processingRequest.getBasePath() + processingRequest.getFileName());
         if (Validations.field(filePath)) {
