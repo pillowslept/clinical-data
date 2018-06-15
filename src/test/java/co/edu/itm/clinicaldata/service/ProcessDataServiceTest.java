@@ -21,6 +21,8 @@ import co.edu.itm.clinicaldata.model.ProcessingRequest;
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessDataServiceTest {
 
+    private static final String INVESTIGATOR_NAME = "Juan";
+    private static final String IDENTIFIER_REQUEST = "1233";
     private static final long INVESTIGATOR_ID = 1L;
 
     @Mock
@@ -107,10 +109,10 @@ public class ProcessDataServiceTest {
         Params params = new Params();
         params.setInvestigatorId(INVESTIGATOR_ID);
         Investigator investigator = new Investigator();
-        investigator.setName("Juan");
+        investigator.setName(INVESTIGATOR_NAME);
         investigator.setId(INVESTIGATOR_ID);
         ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setIdentifier("1233");
+        processingRequest.setIdentifier(IDENTIFIER_REQUEST);
         processingRequest.setState(ProcessState.CREATED.getState());
         processingRequest.setInvestigator(investigator);
         Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
@@ -130,7 +132,7 @@ public class ProcessDataServiceTest {
         // arrange
         Params params = new Params();
         ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setIdentifier("1233");
+        processingRequest.setIdentifier(IDENTIFIER_REQUEST);
         processingRequest.setState(ProcessState.FINISHED_OK.getState());
         Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
 
@@ -146,12 +148,12 @@ public class ProcessDataServiceTest {
         Investigator investigator = new Investigator();
         investigator.setId(2L);
         ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setIdentifier("1233");
+        processingRequest.setIdentifier(IDENTIFIER_REQUEST);
         processingRequest.setState(ProcessState.CREATED.getState());
         processingRequest.setInvestigator(investigator);
         Investigator investigatorFound = new Investigator();
         investigatorFound.setId(INVESTIGATOR_ID);
-        investigatorFound.setName("Juan");
+        investigatorFound.setName(INVESTIGATOR_NAME);
         Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
         Mockito.when(investigatorService.validateAndFind(Mockito.anyLong())).thenReturn(investigatorFound);
 
