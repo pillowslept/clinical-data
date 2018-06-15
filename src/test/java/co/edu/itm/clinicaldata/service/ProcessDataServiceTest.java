@@ -67,7 +67,7 @@ public class ProcessDataServiceTest {
         processingRequest.setBasePath("basepath");
         processingRequest.setState(ProcessState.FINISHED_OK.getState());
         processingRequest.setCreationDate(new Timestamp(0));
-        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
+        Mockito.when(processingRequestService.validateFinishedProcess(Mockito.anyString())).thenReturn(processingRequest);
         Mockito.when(fileUtilities.readFile(Mockito.anyString())).thenReturn("Contenido leído");
 
         // act
@@ -75,32 +75,6 @@ public class ProcessDataServiceTest {
 
         // assert
         Assert.assertNotNull(message);
-    }
-
-    @Test(expected = ValidateException.class)
-    public void processResultCreatedTest() throws ValidateException {
-        // arrange
-        String processIdentifier = "";
-        ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setState(ProcessState.CREATED.getState());
-        processingRequest.setCreationDate(new Timestamp(0));
-        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
-
-        // act
-        processDataService.processResult(processIdentifier);
-    }
-
-    @Test(expected = ValidateException.class)
-    public void processResultProcessingTest() throws ValidateException {
-        // arrange
-        String processIdentifier = "";
-        ProcessingRequest processingRequest = new ProcessingRequest();
-        processingRequest.setState(ProcessState.PROCESSING.getState());
-        processingRequest.setCreationDate(new Timestamp(0));
-        Mockito.when(processingRequestService.validateAndFindByIdentifier(Mockito.anyString())).thenReturn(processingRequest);
-
-        // act
-        processDataService.processResult(processIdentifier);
     }
 
     @Test

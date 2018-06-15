@@ -20,6 +20,7 @@ public class ProcessingRequestService {
 
     private static final String IDENTIFIER_NOT_VALID = "El <identifier> del proceso debe ser válido";
     private static final String PROCESSING_REQUEST_NOT_FOUND = "La solicitud con identificador <%s> no existe en la base de datos";
+    private static final String PROCESS_NOT_FINISHED_YET = "La solicitud <%s> no ha terminado su procesamiento";
 
     @Autowired
     ProcessingRequestRepository processingRequestRepository;
@@ -47,6 +48,15 @@ public class ProcessingRequestService {
             throw new ValidateException(String.format(PROCESSING_REQUEST_NOT_FOUND, processIdentifier));
         }
         return processingRequest;
+    }
+
+    public ProcessingRequest validateFinishedProcess(String processIdentifier) throws ValidateException {
+        ProcessingRequest processingRequest = validateAndFindByIdentifier(processIdentifier);
+        if(processingRequest.getState().equals(ProcessState.CREATED.getState())
+                || processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
+            throw new ValidateException(String.format(PROCESS_NOT_FINISHED_YET, processingRequest.getIdentifier()));
+        }
+        return processingRequest; 
     }
 
     private void validateProcessIdentifier(String processIdentifier) throws ValidateException {

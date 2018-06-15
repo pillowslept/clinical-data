@@ -19,7 +19,6 @@ import co.edu.itm.clinicaldata.util.DateUtilities;
 public class ProcessDataService {
 
     private static final String INVESTIGATOR_NOT_VALID_FOR_REQUEST = "El investigador con id <%d> no es válido para la solicitud.";
-    private static final String PROCESS_NOT_FINISHED_YET = "La solicitud <%s> no ha terminado su procesamiento";
     private static final String PROCESS_STATE_NOT_VALID = "La solicitud <%s> no se encuentra en un estado válido para ser procesada. Estado actual <%s>";
     private static final String PROCESS_STARTED = "Investigador <%s>, la solicitud <%s> ha comenzado a ser procesada por el cluster.";
     private static final String PROCESS_RESULT = "La solicitud <%s> ha terminado su procesamiento, su estado actual es <%s>, su resultado fue <%s>";
@@ -63,9 +62,7 @@ public class ProcessDataService {
      * @throws ValidateException
      */
     public String processResult(String processIdentifier) throws ValidateException {
-        ProcessingRequest processingRequest = processingRequestService
-                .validateAndFindByIdentifier(processIdentifier);
-        validateFinishedProcess(processingRequest);
+        ProcessingRequest processingRequest = processingRequestService.validateFinishedProcess(processIdentifier);
         String fullPath = getProcessFullPath(processingRequest);
         String readedContent = fileUtilities.readFile(fullPath);
         LOGGER.info("Contenido del archivo leído " + readedContent);
@@ -114,13 +111,6 @@ public class ProcessDataService {
 
     private String getProcessFullPath(ProcessingRequest processingRequest) {
         return processingRequest.getBasePath() + processingRequest.getFileName();
-    }
-
-    private void validateFinishedProcess(ProcessingRequest processingRequest) throws ValidateException {
-        if(processingRequest.getState().equals(ProcessState.CREATED.getState())
-                || processingRequest.getState().equals(ProcessState.PROCESSING.getState())){
-            throw new ValidateException(String.format(PROCESS_NOT_FINISHED_YET, processingRequest.getIdentifier()));
-        }
     }
 
 }

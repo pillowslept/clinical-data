@@ -20,6 +20,8 @@ import co.edu.itm.clinicaldata.repository.ProcessingRequestRepository;
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessingRequestServiceTest {
 
+    private static final String PROCESS_IDENTIFIER = "1";
+
     @Mock
     ProcessingRequestRepository processingRequestRepository;
 
@@ -56,7 +58,7 @@ public class ProcessingRequestServiceTest {
     @Test
     public void validateAndFindByIdentifierTest() throws ValidateException {
         // arrange
-        String processIdentifier = "1";
+        String processIdentifier = PROCESS_IDENTIFIER;
         Mockito.when(processingRequestRepository.findByIdentifier(Mockito.anyString())).thenReturn(new ProcessingRequest());
 
         // act
@@ -78,7 +80,7 @@ public class ProcessingRequestServiceTest {
     @Test(expected=ValidateException.class)
     public void validateAndFindByIdentifierWithoutResultTest() throws ValidateException {
         // arrange
-        String processIdentifier = "1";
+        String processIdentifier = PROCESS_IDENTIFIER;
         Mockito.when(processingRequestRepository.findByIdentifier(Mockito.anyString())).thenReturn(null);
 
      // act
@@ -112,5 +114,44 @@ public class ProcessingRequestServiceTest {
 
         // assert
         Assert.assertNotNull(processingRequest);
+    }
+
+    @Test
+    public void validateFinishedProcessTest() throws ValidateException {
+        // arrange
+        String processIdentifier = PROCESS_IDENTIFIER;
+        ProcessingRequest processingRequestReturn = new ProcessingRequest();
+        processingRequestReturn.setState(ProcessState.FINISHED_OK.getState());
+        Mockito.when(processingRequestRepository.findByIdentifier(Mockito.anyString())).thenReturn(processingRequestReturn);
+
+        // act
+        ProcessingRequest processingRequest = processingRequestService.validateFinishedProcess(processIdentifier);
+
+        // assert
+        Assert.assertNotNull(processingRequest);
+    }
+
+    @Test(expected = ValidateException.class)
+    public void validateFinishedProcessCreatedTest() throws ValidateException {
+        // arrange
+        String processIdentifier = PROCESS_IDENTIFIER;
+        ProcessingRequest processingRequestReturn = new ProcessingRequest();
+        processingRequestReturn.setState(ProcessState.CREATED.getState());
+        Mockito.when(processingRequestRepository.findByIdentifier(Mockito.anyString())).thenReturn(processingRequestReturn);
+
+        // act
+        processingRequestService.validateFinishedProcess(processIdentifier);
+    }
+
+    @Test(expected = ValidateException.class)
+    public void validateFinishedProcessProcessingTest() throws ValidateException {
+        // arrange
+        String processIdentifier = PROCESS_IDENTIFIER;
+        ProcessingRequest processingRequestReturn = new ProcessingRequest();
+        processingRequestReturn.setState(ProcessState.PROCESSING.getState());
+        Mockito.when(processingRequestRepository.findByIdentifier(Mockito.anyString())).thenReturn(processingRequestReturn);
+
+        // act
+        processingRequestService.validateFinishedProcess(processIdentifier);
     }
 }
