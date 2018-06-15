@@ -66,6 +66,13 @@ http://localhost:9000/ClinicalData/api/report/request/{identifier} *GET*
 http://localhost:9000/ClinicalData/api/report/investigator/{investigatorId} *GET*
 ```
 
+```
+http://localhost:9000/ClinicalData/api/response/result/{identifier} *GET*
+```
+
+```
+http://localhost:9000/ClinicalData/api/response/request/{identifier} *GET*
+```
 
 ## Autores
 
